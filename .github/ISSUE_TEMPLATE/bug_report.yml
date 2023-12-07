@@ -15,8 +15,8 @@ body:
       required: true
   - type: textarea
     id: steps
-    attributes:
-      label: Repro steps
+   attributes:
+    label: Repro steps
     description: |
       What were you doing on the website or app when the bug happened? Detailed information helps maintainers reproduce and fix bugs.
 
@@ -26,8 +26,8 @@ body:
       1. Log in with username/password
       2. Click "Messages" on the left menu
       3. Open any message in the list
-    validations:
-      required: true
+  validations:
+    required: true
   - type: textarea
     id: expected
     attributes:
