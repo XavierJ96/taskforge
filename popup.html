@@ -4,36 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Planner: TaskForge</title>
-    <style>
-      body {
-        width: 300px;
-        padding: 10px;
-        font-family: Arial, sans-serif;
-      }
-
-      h1 {
-        font-size: 20px;
-      }
-
-      #projectList,
-      #reviewList {
-        list-style-type: none;
-        padding: 0;
-      }
-
-      li {
-        /* Assuming your li has a flex display */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px; /* Adjust the padding as needed */
-      }
-
-      .deleteButton {
-        color: #ff0000;
-      }
-    </style>
     <script src="popup.js"></script>
+    <link rel="stylesheet" href="./src/styles/styles.css">
   </head>
   <body>
     <h1>Task Planner</h1>
@@ -45,6 +17,8 @@
       <h2>Reviews:</h2>
       <ul id="reviewList"></ul>
     </div>
-    <button id="deleteAllTasksButton">Delete All Tasks</button>
+    <button id="delete-all-btn">Delete All</button>
+    </div>
+    <script src="./src/components/taskCard.js"></script>
   </body>
-</html>
+  </html>
