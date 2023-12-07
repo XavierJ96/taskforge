@@ -13,3 +13,51 @@ h2 {
   font-weight: bold;
 }
 
+/*  ===============================
+    Custom Review Component Styles
+    =============================== */
+
+#projectList,
+#reviewList {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 0;
+  gap:10px;
+}
+
+.review-component {
+  display: inline-flex;
+  align-items: center;
+}
+
+.review-header {
+  display: inline-flex;
+  align-items: center;
+  background-color: #003366;
+  padding-left: 0.75rem;
+  border-radius: 10px;
+}
+
+.review-title {
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.review-badge {
+  background-color: #006666;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.25rem;
+}
+
+.review-component .badge-inner {
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
