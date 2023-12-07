@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Planner</title>
+    <style>
+      body {
+        width: 250px;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      #projectList,
+      #reviewList {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 5px;
+        display: flex; /* Use flexbox to align items in a row */
+        align-items: center; /* Align items vertically in the center */
+      }
+
+      .deleteButton {
+        color: #ff0000;
+      }
+    </style>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <h1>Task Planner</h1>
+    <div id="projectTasks">
+      <h2>Projects:</h2>
+      <ul id="projectList"></ul>
+    </div>
+    <div id="reviewTasks">
+      <h2>Reviews:</h2>
+      <ul id="reviewList"></ul>
+    </div>
+    <button id="deleteAllTasksButton">Delete All Tasks</button>
+  </body>
+</html>
