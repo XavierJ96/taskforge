@@ -18,15 +18,15 @@ body:
     validations:
       required: true
   - type: dropdown
-    attributes:
-    label: How often does this bug happen?
-    description: |
-      Following the repro steps above, how easily are you able to reproduce this bug?
-    options:
-      - Every time
-      - Often
-      - Sometimes
-      - Only once
+      attributes:
+      label: How often does this bug happen?
+      description: |
+        Following the repro steps above, how easily are you able to reproduce this bug?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - Only once
     validations:
     required: true
   - type: textarea
