@@ -1,4 +1,4 @@
-name: Bug Report
+name: 🪲 Bug Report
 description: Report a bug
 labels: ["bug"]
 body:
@@ -16,11 +16,16 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
-      placeholder: |
-        1. Go to page X
-        2. Click here
-        3. Click there
+      label: Repro steps
+    description: |
+      What were you doing on the website or app when the bug happened? Detailed information helps maintainers reproduce and fix bugs.
+
+      Issues filed without repro steps will be closed.
+    placeholder: |
+      Example bug report:
+      1. Log in with username/password
+      2. Click "Messages" on the left menu
+      3. Open any message in the list
     validations:
       required: true
   - type: textarea
