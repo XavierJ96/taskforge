@@ -1,4 +1,4 @@
-name: 🪲 Bug Report
+name: Bug Report
 description: Report a bug
 labels: ["bug"]
 body:
@@ -15,15 +15,15 @@ body:
       required: true
   - type: textarea
     id: steps
-   attributes:
+    attributes:
       label: Steps to reproduce
-     placeholder: |
-      Example bug report:
-      1. Log in with username/password
-      2. Click "Messages" on the left menu
-      3. Open any message in the list
-  validations:
-    required: true
+      placeholder: |
+        Example bug report:
+        1. Log in with username/password
+        2. Click "Messages" on the left menu
+        3. Open any message in the list
+    validations:
+      required: true
   - type: textarea
     id: expected
     attributes:
