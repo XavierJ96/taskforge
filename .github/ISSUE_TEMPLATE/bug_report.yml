@@ -16,12 +16,8 @@ body:
   - type: textarea
     id: steps
    attributes:
-    label: Repro steps
-    description: |
-      What were you doing on the website or app when the bug happened? Detailed information helps maintainers reproduce and fix bugs.
-
-      Issues filed without repro steps will be closed.
-    placeholder: |
+      label: Steps to reproduce
+     placeholder: |
       Example bug report:
       1. Log in with username/password
       2. Click "Messages" on the left menu
