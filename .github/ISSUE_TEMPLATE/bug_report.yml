@@ -43,7 +43,6 @@ body:
       options:
         - label: I have used the search function to check if an issue already exists
           required: true
-        - label: I'd like to work on this issue
   - type: markdown
     attributes:
       value: |
