@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTaskList("reviewList", reviewTasks);
   });
 
-  // Add click event listener to the "Delete All Tasks" button
+  // Add click event listener to the "Delete All Tasks" butto
   const deleteAllTasksButton = document.getElementById("deleteAllTasksButton");
   if (deleteAllTasksButton) {
     deleteAllTasksButton.addEventListener("click", deleteAllTasks);
