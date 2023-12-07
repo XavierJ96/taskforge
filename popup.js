@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Add click event listener to the "Delete All Tasks" butto
-  const deleteAllTasksButton = document.getElementById("deleteAllTasksButton");
+  const deleteAllTasksButton = document.getElementById("delete-all-btn");
   if (deleteAllTasksButton) {
     deleteAllTasksButton.addEventListener("click", deleteAllTasks);
   }
@@ -29,25 +29,16 @@ function updateTaskList(listId, tasks) {
     listElement.appendChild(noTasksMessage);
   } else {
     tasks.forEach((task) => {
-      const listItem = document.createElement("li");
-
-      listItem.textContent = task.type === "review" ? `${task.title} by ${task.assignee}`: task.title;
+      // Create a list item using the createListItem function
+      const listItem = createListItem(task);
 
       // Create a delete button for each task
-      const deleteButton = document.createElement("button");
-      deleteButton.innerHTML =
-        '<img src="svg/delete-icon.svg" alt="Delete Icon">';
-      deleteButton.classList.add("deleteButton");
-      deleteButton.style.margin = "0 10px"
-      deleteButton.addEventListener("click", () => {
+      listItem.querySelector("#delete-btn").addEventListener("click", () => {
         // Handle task deletion
         deleteTask(task);
       });
 
-      // Append the delete button to the list item
-      listItem.appendChild(deleteButton);
-
-      // Append the list item to the task list
+      // Append the list item to the reviewList
       listElement.appendChild(listItem);
     });
   }
