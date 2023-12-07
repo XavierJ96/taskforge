@@ -18,7 +18,7 @@ body:
     validations:
       required: true
   - type: dropdown
-      attributes:
+    attributes:
       label: How often does this bug happen?
       description: |
         Following the repro steps above, how easily are you able to reproduce this bug?
@@ -28,7 +28,7 @@ body:
         - Sometimes
         - Only once
     validations:
-    required: true
+      required: true
   - type: textarea
     id: expected
     attributes:
