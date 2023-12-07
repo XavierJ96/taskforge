@@ -61,3 +61,16 @@ h2 {
   font-weight: bold;
 }
 
+/* ===============================
+          Card Container
+   =============================== */
+
+#card-container {
+  background-color: #f3f3f3;
+  display: flex; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  padding: 10px;
+  gap: 15px;
+  border-radius: 10px;
+}
+
