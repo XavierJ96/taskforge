@@ -15,7 +15,6 @@ function getCardData() {
       if (columnNameElement) {
         const columnName = columnNameElement.textContent.trim();
 
-        // Check if the column name includes "Complete"
         if (!columnName.includes("Complete")) {
           const cards = child.querySelectorAll(
             "div.MuiPaper-root.MuiCard-root"
@@ -29,7 +28,6 @@ function getCardData() {
               "div.MuiCardContent-root > p"
             );
 
-            
             const cardTitle = cardTitleElement.textContent.trim();
             const cardAssignee = cardAssigneeElement.textContent.trim();
 
@@ -45,7 +43,9 @@ function getCardData() {
                 action: "addTaskToPlanner",
                 cardTitle: cardTitle,
                 cardType: getCardType(card),
-                ...(getCardType(card) === "review" && { cardAssignee: cardAssignee }),
+                ...(getCardType(card) === "review" && {
+                  cardAssignee: cardAssignee,
+                }),
               });
             });
 
