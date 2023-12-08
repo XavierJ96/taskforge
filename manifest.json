@@ -3,6 +3,10 @@
   "name": "TaskForge",
   "version": "1.0.0",
   "description": "Add task to a planner",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png"
+  },
   "permissions": ["activeTab", "storage"],
   "background": {
     "service_worker": "background.js"
@@ -16,6 +20,7 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Tilde Planner",
-    "scripts": ["popup.js"]
+    "scripts": ["popup.js"],
+    "persistent": false
   }
 }

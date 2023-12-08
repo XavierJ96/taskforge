@@ -8,16 +8,20 @@
     <link rel="stylesheet" href="./src/styles/styles.css">
   </head>
   <body>
-    <h1>Task Planner</h1>
-    <div id="projectTasks">
-      <h2>Projects:</h2>
-      <ul id="projectList"></ul>
+    <div id="header">
+      <h1>Task Planner</h1>
     </div>
-    <div id="reviewTasks">
-      <h2>Reviews:</h2>
-      <ul id="reviewList"></ul>
-    </div>
-    <button id="delete-all-btn">Delete All</button>
+    <div id="task-board">
+      <div id="projectTasks">
+        <h2 id="card-heeader">Projects:</h2>
+        <ul id="projectList"></ul>
+      </div>
+      <div id="reviewTasks">
+        <h2 id="card-heeader">Reviews:</h2>
+        <ul id="reviewList"></ul>
+      </div>
+      <button id="delete-all-btn">Delete All</button>
+      </div>
     </div>
     <script src="./src/components/taskCard.js"></script>
   </body>

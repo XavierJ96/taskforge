@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTaskList("reviewList", reviewTasks);
   });
 
+
   const deleteAllTasksButton = document.getElementById("delete-all-btn");
   if (deleteAllTasksButton) {
     deleteAllTasksButton.addEventListener("click", deleteAllTasks);
