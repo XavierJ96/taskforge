@@ -3,19 +3,31 @@
 body {
   background-color: #ffffff;
   min-width: 450px;
-  padding: 10px;
   font-family: Montserrat, sans-serif;
-}
-
-h1,
-h2 {
-  font-size: 18px;
-  font-weight: bold;
+  margin: 0;
 }
 
 /*  ===============================
-    Custom Review Component Styles
-    =============================== */
+            Header
+=============================== */
+
+#header {
+  background-color: #002333;
+  padding: 16px 16px 16px 12px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+#task-board {
+  padding: 12px;
+}
+
+#card-header {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  color: #757575;
+}
 
 #projectList,
 #reviewList {
@@ -23,8 +35,12 @@ h2 {
   flex-direction: column;
   list-style-type: none;
   padding: 0;
-  gap:10px;
+  gap: 10px;
 }
+
+/*  ===============================
+Custom Review Component Styles
+=============================== */
 
 .review-component {
   display: inline-flex;
@@ -94,7 +110,7 @@ h2 {
 }
 
 .checkbox__inner {
-  display: border-box;;
+  display: border-box;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -117,6 +133,10 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+#list-item {
+  background-color: #f3f3f3;
 }
 
 #list-header {
@@ -186,4 +206,8 @@ h2 {
 
 #delete-all-btn:hover::before {
   right: 0;
+}
+
+.checked {
+  background-color: #deefe7 !important; /* Change this to the desired color when the checkbox is checked */
 }
