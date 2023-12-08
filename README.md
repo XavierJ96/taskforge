@@ -28,14 +28,14 @@ We appreciate contributions from the community to enhance the TaskForge core. If
 
 ### Reporting Issues
 
-1. **Check Existing Issues:**
+1. **📄 Check Existing Issues:**
    - Before opening a new issue, check if a similar one already exists to avoid duplication.
 
-2. **Bug Reports:**
+2. **🪲 Bug Reports:**
    - If reporting a bug, provide information on the expected behavior and what actually happened.
    - Include steps to reproduce the issue, if possible.
 
-3. **Feature Requests:**
+3. **🚀 Feature Requests:**
    - Clearly outline the proposed feature and its benefits.
    - Consider providing use cases or examples.
 
