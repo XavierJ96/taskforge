@@ -29,17 +29,6 @@ body:
       label: Additional Context
       placeholder: |
         Add any other context, screenshots, or related information here.
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options:
-        - label: High
-          value: high
-        - label: Medium
-          value: medium
-        - label: Low
-          value: low
   - type: checkboxes
     id: checks
     attributes:
