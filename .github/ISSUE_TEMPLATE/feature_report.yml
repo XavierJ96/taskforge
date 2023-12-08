@@ -34,12 +34,12 @@ body:
     attributes:
       label: Priority
       options:
-        - label: High
+      - label: High
           value: high
-        - label: Medium
+      - label: Medium
           value: medium
-        - label: Low
-          value: low
+      - label: Low
+           value: low
   - type: checkboxes
     id: checks
     attributes:
