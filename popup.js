@@ -78,8 +78,6 @@ function deleteAllTasks() {
     result.reviewTasks = [];
 
     chrome.storage.local.set(result, function () {
-      console.log("All tasks deleted");
-
       updateTaskList("projectList", []);
       updateTaskList("reviewList", []);
     });

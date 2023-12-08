@@ -1,5 +1,3 @@
-console.log("Notion Tasks Extension content script loaded");
-
 function getCardData() {
   //Get column data
   const parentElement = document.querySelector(
