@@ -35,7 +35,6 @@ function updateTaskList(listId, tasks, cardCheckedState) {
       const listItem = createListItem(task);
       const checkbox = listItem.querySelector(".checkbox__input");
 
-      // Set the initial checked state based on storage
       if (cardCheckedState[task.title]) {
         checkbox.checked = true;
         listItem.classList.add("checked");
@@ -50,7 +49,6 @@ function updateTaskList(listId, tasks, cardCheckedState) {
           container.classList.remove("checked");
         }
 
-        // Save the checked state in storage
         cardCheckedState[task.title] = checkbox.checked;
         chrome.storage.local.set({ cardCheckedState });
       });
