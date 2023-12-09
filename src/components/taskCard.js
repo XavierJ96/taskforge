@@ -1,19 +1,6 @@
 const createListItem = (task) => {
   const listItem = document.createElement("li");
 
-  listItem.addEventListener("change", function (event) {
-    const checkbox = event.target;
-    const container = document.getElementById("card-container");
-
-    if (checkbox.type === "checkbox") {
-      if (checkbox.checked) {
-        container.classList.add("checked");
-      } else {
-        container.classList.remove("checked");
-      }
-    }
-  });
-
   const assigneeDiv = task.assignee
     ? `<div id="list-assignee">Assignee: ${task.assignee}</div>`
     : "";
