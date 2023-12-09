@@ -6,6 +6,7 @@ function updateTaskLists(projectTasks, reviewTasks) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log(message);
   if (message.action === "addTaskToPlanner") {
     const { cardTitle, cardType, cardAssignee } = message;
     

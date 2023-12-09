@@ -1,12 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
-  chrome.storage.local.get(["projectTasks", "reviewTasks"], function (result) {
-    const projectTasks = result.projectTasks || [];
-    const reviewTasks = result.reviewTasks || [];
+  // Initialize cardCheckedState or retrieve from storage
+  chrome.storage.local.get(["cardCheckedState"], function (result) {
+    const cardCheckedState = result.cardCheckedState || {};
 
-    updateTaskList("projectList", projectTasks);
-    updateTaskList("reviewList", reviewTasks);
+    chrome.storage.local.get(
+      ["projectTasks", "reviewTasks"],
+      function (result) {
+        const projectTasks = result.projectTasks || [];
+        const reviewTasks = result.reviewTasks || [];
+
+        updateTaskList("projectList", projectTasks, cardCheckedState);
+        updateTaskList("reviewList", reviewTasks, cardCheckedState);
+      }
+    );
   });
-
 
   const deleteAllTasksButton = document.getElementById("delete-all-btn");
   if (deleteAllTasksButton) {
@@ -14,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-function updateTaskList(listId, tasks) {
+function updateTaskList(listId, tasks, cardCheckedState) {
   const listElement = document.getElementById(listId);
 
   listElement.innerHTML = "";
@@ -26,6 +33,25 @@ function updateTaskList(listId, tasks) {
   } else {
     tasks.forEach((task) => {
       const listItem = createListItem(task);
+      const checkbox = listItem.querySelector(".checkbox__input");
+
+      if (cardCheckedState[task.title]) {
+        checkbox.checked = true;
+        listItem.classList.add("checked");
+      }
+
+      checkbox.addEventListener("change", function (event) {
+        const container = document.getElementById("card-container");
+
+        if (checkbox.checked) {
+          container.classList.add("checked");
+        } else {
+          container.classList.remove("checked");
+        }
+
+        cardCheckedState[task.title] = checkbox.checked;
+        chrome.storage.local.set({ cardCheckedState });
+      });
 
       listItem.querySelector("#delete-btn").addEventListener("click", () => {
         deleteTask(task);
