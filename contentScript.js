@@ -1,5 +1,4 @@
 function getCardData() {
-  //Get column data
   const parentElement = document.querySelector(
     "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
   );
