@@ -16,6 +16,7 @@ body {
   padding: 16px 16px 16px 12px;
   color: #ffffff;
   font-weight: bold;
+  text-align: center;
 }
 #task-board {
   padding: 12px;
@@ -205,4 +206,34 @@ Custom Review Component Styles
 
 .checked {
   background-color: #deefe7 !important; 
+}
+
+#stat-container {
+  display: flex;
+  gap: 12px;
+  padding: 20px 12px 0px 12px;
+}
+
+.stat-header {
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  padding: 6px 35px 6px 12px;
+}
+
+.stat-section {
+  display: flex;
+  justify-content: center;
+  background-color: #002333;
+  border-radius: 10px 10px 10px 10px;
+}
+
+.stat-count {
+  align-items: center;
+  padding-left: 6px;
+  font-weight: bold;
+  color: white;
+  padding: 6px 12px;
+  background-color: #159A9C;
+  border-radius: 0px 10px 10px 0px;
 }

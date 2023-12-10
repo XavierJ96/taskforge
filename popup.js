@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
   if (deleteAllTasksButton) {
     deleteAllTasksButton.addEventListener("click", deleteAllTasks);
   }
+
+  getTasksFromBackground();
+
+  chrome.storage.onChanged.addListener(function (changes, namespace) {
+      if (changes.projectTasks || changes.reviewTasks) {
+          getTasksFromBackground();
+      }
+  });
 });
 
 function updateTaskList(listId, tasks) {
@@ -102,4 +110,20 @@ function deleteAllTasks() {
       updateTaskList("reviewList", []);
     });
   });
+}
+
+
+function getTasksFromBackground() {
+  chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
+      updateUI(response.projectTasks, response.reviewTasks);
+  });
+}
+
+function updateUI(projectTasks, reviewTasks) {
+  const projectCount = projectTasks.length || 0;
+  const reviewCount = reviewTasks.length || 0;
+
+  document.getElementById('project-count').innerText = projectCount;
+
+  document.getElementById('review-count').innerText = reviewCount;
 }
