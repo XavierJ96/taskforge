@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Request data from background script
   chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
     const projectTasks = response.projectTasks || [];
     const reviewTasks = response.reviewTasks || [];
@@ -20,7 +19,6 @@ function updateTaskList(listId, tasks) {
   listElement.innerHTML = "";
 
   if (!tasks || tasks.length === 0) {
-    console.log(`No tasks available for ${listId}`);
     const noTasksMessage = document.createElement("li");
     noTasksMessage.textContent = "No tasks available.";
     listElement.appendChild(noTasksMessage);
@@ -45,7 +43,6 @@ function updateTaskList(listId, tasks) {
   }
 }
 
-// Add a function to handle checkbox changes
 function handleCheckboxChange(listId, taskIndex) {
   chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
     const tasks =
@@ -54,7 +51,6 @@ function handleCheckboxChange(listId, taskIndex) {
     if (tasks && tasks[taskIndex]) {
       tasks[taskIndex].checked = !tasks[taskIndex].checked;
 
-      // Update the task list in the popup
       updateTaskList(listId, tasks);
     }
   });
