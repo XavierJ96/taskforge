@@ -1,7 +1,16 @@
 function updateTaskLists(projectTasks, reviewTasks) {
-  chrome.storage.local.set({
-    projectTasks,
-    reviewTasks,
+  chrome.storage.local.get(["projectTasks", "reviewTasks"], function (result) {
+    if (projectTasks !== null && projectTasks !== undefined) {
+      result.projectTasks = projectTasks;
+    }
+
+    if (reviewTasks !== null && reviewTasks !== undefined) {
+      result.reviewTasks = reviewTasks;
+    }
+
+    chrome.storage.local.set(result, function () {
+      console.log("Task lists updated:", result);
+    });
   });
 }
 
