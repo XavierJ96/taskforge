@@ -1,18 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Initialize cardCheckedState or retrieve from storage
-  chrome.storage.local.get(["cardCheckedState"], function (result) {
-    const cardCheckedState = result.cardCheckedState || {};
+  // Request data from background script
+  chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
+    const projectTasks = response.projectTasks || [];
+    const reviewTasks = response.reviewTasks || [];
 
-    chrome.storage.local.get(
-      ["projectTasks", "reviewTasks"],
-      function (result) {
-        const projectTasks = result.projectTasks || [];
-        const reviewTasks = result.reviewTasks || [];
-
-        updateTaskList("projectList", projectTasks, cardCheckedState);
-        updateTaskList("reviewList", reviewTasks, cardCheckedState);
-      }
-    );
+    updateTaskList("projectList", projectTasks);
+    updateTaskList("reviewList", reviewTasks);
   });
 
   const deleteAllTasksButton = document.getElementById("delete-all-btn");
@@ -21,45 +14,50 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-function updateTaskList(listId, tasks, cardCheckedState) {
+function updateTaskList(listId, tasks) {
   const listElement = document.getElementById(listId);
 
   listElement.innerHTML = "";
 
-  if (tasks.length === 0) {
+  if (!tasks || tasks.length === 0) {
+    console.log(`No tasks available for ${listId}`);
     const noTasksMessage = document.createElement("li");
     noTasksMessage.textContent = "No tasks available.";
     listElement.appendChild(noTasksMessage);
   } else {
     tasks.forEach((task) => {
       const listItem = createListItem(task);
-      const checkbox = listItem.querySelector(".checkbox__input");
 
-      if (cardCheckedState[task.title]) {
-        checkbox.checked = true;
-        listItem.classList.add("checked");
-      }
+      listItem
+        .querySelector(".checkbox__input")
+        .addEventListener("change", () => {
+          handleCheckboxChange(listId, tasks.indexOf(task));
+        });
 
-      checkbox.addEventListener("change", function (event) {
-        const container = document.getElementById("card-container");
-
-        if (checkbox.checked) {
-          container.classList.add("checked");
-        } else {
-          container.classList.remove("checked");
-        }
-
-        cardCheckedState[task.title] = checkbox.checked;
-        chrome.storage.local.set({ cardCheckedState });
-      });
+      listElement.appendChild(listItem);
 
       listItem.querySelector("#delete-btn").addEventListener("click", () => {
         deleteTask(task);
       });
-
-      listElement.appendChild(listItem);
     });
+
+    chrome.runtime.sendMessage({ action: "updateTaskList", listId, tasks });
   }
+}
+
+// Add a function to handle checkbox changes
+function handleCheckboxChange(listId, taskIndex) {
+  chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
+    const tasks =
+      listId === "projectList" ? response.projectTasks : response.reviewTasks;
+
+    if (tasks && tasks[taskIndex]) {
+      tasks[taskIndex].checked = !tasks[taskIndex].checked;
+
+      // Update the task list in the popup
+      updateTaskList(listId, tasks);
+    }
+  });
 }
 
 function deleteTask(taskToDelete) {
