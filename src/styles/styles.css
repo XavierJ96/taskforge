@@ -78,7 +78,7 @@ Custom Review Component Styles
 #card-container {
   background-color: #f3f3f3;
   display: flex;
-  align-items: center; 
+  align-items: center;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -87,16 +87,23 @@ Custom Review Component Styles
 }
 
 /*  ===============================
-                Checkbox 
-    =============================== */
+Checkbox 
+=============================== */
 
 .checkbox {
   display: flex;
+  box-sizing: border-box;
+  min-width: 20px;
+  min-height: 20px;
   justify-content: center;
   align-items: center;
   position: relative;
   overflow: hidden;
   cursor: pointer;
+}
+
+.checked {
+  background-color: #deefe7 !important;
 }
 
 .checkbox__input {
@@ -106,7 +113,7 @@ Custom Review Component Styles
 }
 
 .checkbox__inner {
-  display: border-box;
+  box-sizing: border-box;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -192,8 +199,8 @@ Custom Review Component Styles
   background-color: #ff3030;
   display: flex;
   justify-content: center;
-  font-weight: bold; 
-  font-size: 18px; 
+  font-weight: bold;
+  font-size: 18px;
   font-weight: bold;
   font-size: 18px;
   align-items: center;
@@ -204,9 +211,9 @@ Custom Review Component Styles
   right: 0;
 }
 
-.checked {
-  background-color: #deefe7 !important; 
-}
+/*  ===============================
+          Stat Count Component
+    =============================== */
 
 #stat-container {
   display: flex;
@@ -234,6 +241,6 @@ Custom Review Component Styles
   font-weight: bold;
   color: white;
   padding: 6px 12px;
-  background-color: #159A9C;
+  background-color: #159a9c;
   border-radius: 0px 10px 10px 0px;
 }

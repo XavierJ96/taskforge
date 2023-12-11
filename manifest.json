@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "description": "Add task to a planner",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png"
+    "16": "./src/images/icon16.png",
+    "48": "./src/images/icon48.png"
   },
   "permissions": ["storage"],
   "background": {
@@ -13,14 +13,14 @@
   },
   "content_scripts": [
     {
-      "js": ["contentScript.js"],
+      "js": ["./src/content/content.js"],
       "matches": ["https://tilde-front-dot-umuzi-prod.nw.r.appspot.com/*"]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "./src/popup/popup.html",
     "default_title": "Tilde Planner",
-    "scripts": ["popup.js"],
+    "scripts": ["./src/popup/popup.js"],
     "persistent": false
   }
 }
