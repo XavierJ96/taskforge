@@ -62,7 +62,6 @@ function createAddButton() {
   return addButton;
 }
 
-// Function to process each card and its details
 function processCard(child, index) {
   const columnNameElement = child.querySelector("div > h5");
 
@@ -93,7 +92,6 @@ function processCard(child, index) {
   }
 }
 
-// Main function to get card data
 function getCardData() {
   const parentElement = document.querySelector(
     "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
