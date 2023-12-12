@@ -3,23 +3,32 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
 
-  chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
-    const storedTasks =
-      cardType === "project" ? response.projectTasks : response.reviewTasks;
-    const isTaskAdded = storedTasks.some((task) => {
-      return (
-        task.title === cardTitle &&
-        (task.assignee === cardAssignee || task.type !== "review")
-      );
-    });
+  function updateButtonState() {
+    chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
+      const storedTasks =
+        cardType === "project" ? response.projectTasks : response.reviewTasks;
+      const isTaskAdded = storedTasks.some((task) => {
+        return (
+          task.title === cardTitle &&
+          (task.assignee === cardAssignee || task.type !== "review")
+        );
+      });
 
-    if (isTaskAdded) {
-      addButton.disabled = true;
-      text.innerText = "Added";
-      icon.classList.remove("fa-plus");
-      icon.classList.add("fa-check");
-    }
-  });
+      if (isTaskAdded) {
+        addButton.disabled = true;
+        text.innerText = "Added";
+        icon.classList.remove("fa-plus");
+        icon.classList.add("fa-check");
+      } else {
+        addButton.disabled = false;
+        text.innerText = "Add to Planner";
+        icon.classList.remove("fa-check");
+        icon.classList.add("fa-plus");
+      }
+    });
+  }
+
+  updateButtonState();
 
   addButton.addEventListener("click", () => {
     if (addButton.disabled) {
@@ -38,6 +47,12 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
   });
 
   card.appendChild(addButton);
+
+  chrome.storage.onChanged.addListener(function (changes) {
+    if ("projectTasks" in changes || "reviewTasks" in changes) {
+      updateButtonState();
+    }
+  });
 }
 
 function toggleIconAndText(icon, text) {
