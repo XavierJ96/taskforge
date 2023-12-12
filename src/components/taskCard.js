@@ -20,7 +20,7 @@ const createListItem = (task) => {
     </div>
     <div id="delete-btn-container">
       <button id="delete-btn">
-        <img src="../images/delete-icon.png" alt="delete icon" id="delete-icon" />
+        <img src="../assets/delete-icon.png" alt="delete icon" id="delete-icon" />
       </button>
     </div>
   </div>`;
