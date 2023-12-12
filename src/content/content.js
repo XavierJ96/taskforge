@@ -3,16 +3,36 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
 
+  chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
+    const storedTasks =
+      cardType === "project" ? response.projectTasks : response.reviewTasks;
+    const isTaskAdded = storedTasks.some((task) => {
+      return (
+        task.title === cardTitle &&
+        (task.assignee === cardAssignee || task.type !== "review")
+      );
+    });
+
+    if (isTaskAdded) {
+      addButton.disabled = true;
+      text.innerText = "Added";
+      icon.classList.remove("fa-plus");
+      icon.classList.add("fa-check");
+    }
+  });
+
   addButton.addEventListener("click", () => {
     if (addButton.disabled) {
       return;
     }
+
     chrome.runtime.sendMessage({
       action: "addTaskToPlanner",
       cardTitle: cardTitle,
       cardType: cardType,
       ...(cardType === "review" && { cardAssignee: cardAssignee }),
     });
+
     toggleIconAndText(icon, text);
     animateButton(addButton, icon, text);
   });
@@ -45,7 +65,7 @@ function animateButton(button, icon, text) {
 
 function createAddButton() {
   const addButton = document.createElement("button");
-  addButton.id = "addBtn"
+  addButton.id = "addBtn";
   addButton.classList.add("MuiChip-root", "jss367");
 
   const span = document.createElement("span");
@@ -62,7 +82,7 @@ function createAddButton() {
   return addButton;
 }
 
-function processCard(child, index) {
+async function processCard(child, index) {
   const columnNameElement = child.querySelector("div > h5");
 
   if (columnNameElement) {
@@ -71,7 +91,7 @@ function processCard(child, index) {
     if (!columnName.includes("Complete")) {
       const cards = child.querySelectorAll("div.MuiPaper-root.MuiCard-root");
 
-      Array.from(cards).forEach((card, cardIndex) => {
+      for (const card of cards) {
         const cardTitleElement = card.querySelector(
           "div.MuiCardContent-root > h2"
         );
@@ -84,8 +104,8 @@ function processCard(child, index) {
 
         const cardType = getCardType(card);
 
-        addButtonToCard(card, cardTitle, cardType, cardAssignee);
-      });
+        await addButtonToCard(card, cardTitle, cardType, cardAssignee);
+      }
     }
   } else {
     console.warn(`Column name not found for child ${index + 1}`);
@@ -100,8 +120,8 @@ function getCardData() {
   if (parentElement) {
     const children = parentElement.children;
 
-    Array.from(children).forEach((child, index) => {
-      processCard(child, index);
+    Array.from(children).forEach(async (child, index) => {
+      await processCard(child, index);
     });
   } else {
     return null;
