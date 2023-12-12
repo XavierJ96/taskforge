@@ -74,7 +74,10 @@ function animateButton(button, icon, text) {
 
   setTimeout(() => {
     icon.classList.remove("rotate");
-    button.disabled = false;
+    
+    setTimeout(() => {
+      button.disabled = true;
+    }, 500);
   }, 1000);
 }
 
