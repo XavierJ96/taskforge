@@ -1,34 +1,57 @@
+"use strict";
+
+import "./index.css";
+import "./content/injectBtnStyles.css";
+import { db, auth } from "./firebase_config";
+import { collection, onSnapshot, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+
 function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
   const addButton = createAddButton();
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
 
-  function updateButtonState() {
-    chrome.runtime.sendMessage({ action: "getTasks" }, function (response) {
-      const storedTasks =
-        cardType === "project" ? response.projectTasks : response.reviewTasks;
-      const isTaskAdded = storedTasks.some((task) => {
-        return (
-          task.title === cardTitle &&
-          (task.assignee === cardAssignee || task.type !== "review")
-        );
-      });
+  const taskRef = collection(db, "forgedTasks");
 
-      if (isTaskAdded) {
+  const unsub = onSnapshot(taskRef, (snapshot) => {
+    let isTaskAdded = false;
+
+    snapshot.docs.forEach((doc) => {
+      let docTitle = doc.data().cardTitle;
+      let docAssignee = doc.data().cardAssignee;
+
+      if (
+        docTitle === cardTitle &&
+        (docAssignee === cardAssignee || doc.data().cardType !== "review")
+      ) {
+        isTaskAdded = true;
+      }
+    });
+
+    chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
+      if (response.userEmail === null) {
         addButton.disabled = true;
-        text.innerText = "Added";
-        icon.classList.remove("fa-plus");
-        icon.classList.add("fa-check");
-      } else {
-        addButton.disabled = false;
         text.innerText = "Add to Planner";
         icon.classList.remove("fa-check");
         icon.classList.add("fa-plus");
+        return;
       }
     });
-  }
 
-  updateButtonState();
+    if (isTaskAdded) {
+      toggleIconAndText(icon, text, true);
+      addButton.disabled = true;
+      text.innerText = "Added";
+      icon.classList.remove("fa-plus");
+      icon.classList.add("fa-check");
+    } else {
+      toggleIconAndText(icon, text, false);
+      addButton.disabled = false;
+      text.innerText = "Add to Planner";
+      icon.classList.remove("fa-check");
+      icon.classList.add("fa-plus");
+    }
+  });
 
   addButton.addEventListener("click", () => {
     if (addButton.disabled) {
@@ -36,31 +59,31 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
     }
 
     chrome.runtime.sendMessage({
-      action: "addTaskToPlanner",
+      action: "saveTaskToFirebase",
       cardTitle: cardTitle,
       cardType: cardType,
+      dateAdded: new Date(),
+      isChecked: false,
       ...(cardType === "review" && { cardAssignee: cardAssignee }),
     });
 
-    toggleIconAndText(icon, text);
+    toggleIconAndText(icon, text, true);
     animateButton(addButton, icon, text);
   });
 
   card.appendChild(addButton);
-
-  chrome.storage.onChanged.addListener(function (changes) {
-    if ("projectTasks" in changes || "reviewTasks" in changes) {
-      updateButtonState();
-    }
-  });
 }
 
-function toggleIconAndText(icon, text) {
-  icon.classList.toggle("fa-plus");
-  icon.classList.toggle("fa-check");
-  text.innerText = icon.classList.contains("fa-plus")
-    ? "Add to Planner"
-    : "Added";
+function toggleIconAndText(icon, text, added) {
+  if (added) {
+    icon.classList.remove("fa-plus");
+    icon.classList.add("fa-check");
+    text.innerText = "Added";
+  } else {
+    icon.classList.add("fa-plus");
+    icon.classList.remove("fa-check");
+    text.innerText = "Add to Planner";
+  }
 }
 
 function animateButton(button, icon, text) {
@@ -74,7 +97,7 @@ function animateButton(button, icon, text) {
 
   setTimeout(() => {
     icon.classList.remove("rotate");
-    
+
     setTimeout(() => {
       button.disabled = true;
     }, 500);
@@ -122,7 +145,7 @@ async function processCard(child, index) {
 
         const cardType = getCardType(card);
 
-        await addButtonToCard(card, cardTitle, cardType, cardAssignee);
+        addButtonToCard(card, cardTitle, cardType, cardAssignee);
       }
     }
   } else {
@@ -130,7 +153,7 @@ async function processCard(child, index) {
   }
 }
 
-function getCardData() {
+async function getCardData() {
   const parentElement = document.querySelector(
     "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
   );

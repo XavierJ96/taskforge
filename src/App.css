@@ -1,32 +1,55 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;500;600;700;800;900&display=swap");
 
-body {
-  background-color: #ffffff;
-  min-width: 450px;
-  font-family: Montserrat, sans-serif;
-  margin: 0;
+#root {
+  max-width: 1280px;
+  min-width: 400px;
+  margin: 0 auto;
+}
+
+::-webkit-scrollbar {
+  width:7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555; 
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 /*  ===============================
             Header
 =============================== */
-
-#header {
+.header {
   background-color: #002333;
   padding: 16px 16px 16px 12px;
   color: #ffffff;
   font-weight: bold;
   text-align: center;
+  padding: 0.6rem;
 }
-#task-board {
+
+.header h2 {
+  font-size: 28px;
+}
+
+.task-board {
   padding: 12px;
 }
-#card-header {
+
+.card-header {
   font-size: 18px;
   font-weight: bold;
   margin: 0;
   color: #757575;
 }
+
 #projectList,
 #reviewList {
   display: flex;
@@ -36,39 +59,23 @@ body {
   gap: 10px;
 }
 
-/*  ===============================
-Custom Review Component Styles
-=============================== */
+#projectTasks,
+#reviewTasks {
+margin: 15px 0;
+}
 
-.review-component {
-  display: inline-flex;
-  align-items: center;
+.card {
+  padding: 2em;
 }
-.review-header {
-  display: inline-flex;
-  align-items: center;
-  background-color: #003366;
-  padding-left: 0.75rem;
-  border-radius: 10px;
+
+.read-the-docs {
+  color: #888;
 }
-.review-title {
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-}
-.review-badge {
-  background-color: #006666;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
+
+#navbar {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 0.25rem;
-}
-.review-component .badge-inner {
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
+  gap: 1em;
+  margin-bottom: 1rem;
 }
 
 /* ===============================
@@ -87,8 +94,8 @@ Custom Review Component Styles
 }
 
 /*  ===============================
-Checkbox 
-=============================== */
+                 Checkbox 
+  =============================== */
 
 .checkbox {
   display: flex;
@@ -129,13 +136,12 @@ Checkbox
 }
 
 /*  ===============================
-          List Item Component
+            List Item Component
     =============================== */
 
 #list-container {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 #list-item {
   background-color: #f3f3f3;
@@ -175,6 +181,7 @@ Checkbox
 #delete-all-btn {
   border-radius: 10px;
   position: relative;
+  margin: 20px 0;
   width: 100px;
   height: 40px;
   background-color: #ff0000;
@@ -212,13 +219,13 @@ Checkbox
 }
 
 /*  ===============================
-          Stat Count Component
+            Stat Count Component
     =============================== */
 
 #stat-container {
   display: flex;
   gap: 12px;
-  padding: 20px 12px 0px 12px;
+  padding: px 12px 0px 12px;
 }
 
 .stat-header {
