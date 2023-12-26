@@ -170,9 +170,21 @@ function Home({ userEmail }) {
   }
 
   useEffect(() => {
+    let today = new Date();
+    let yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    let formattedToday = today.toISOString().split("T")[0];
+    let formattedYesterday = yesterday.toISOString().split("T")[0];
+
+    let filteredTasks = taskData.filter((task) => {
+      let taskDate = task.dateAdded.split("T")[0];
+      return taskDate === formattedToday || taskDate === formattedYesterday;
+    });
+
     chrome.runtime.sendMessage({
       action: "setNotificationCount",
-      count: taskData.length,
+      count: filteredTasks.length,
     });
   }, [taskData]);
 
