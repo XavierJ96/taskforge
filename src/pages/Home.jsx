@@ -26,9 +26,8 @@ function Home({ userEmail }) {
   const [todayVisible, setTodayVisible] = useState(false);
   const [yesterdayVisible, setYesterdayVisible] = useState(false);
   const [learnerData, setLearnerData] = useState({});
-
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [hasLearnersData, setHasLearnersData] = useState();
+  const [isTechLead, setIsTechLead] = useState(false);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
@@ -83,6 +82,9 @@ function Home({ userEmail }) {
       const tasksByLearner = {};
       const unsub = onSnapshot(learnerRef, async (snapshot) => {
         snapshot.forEach(async (doc) => {
+          if (doc.data().techLead === userEmail) {
+            setIsTechLead(true);
+          }
           const learnersMap = doc.data().learners;
 
           if (Array.isArray(learnersMap) && learnersMap.length > 0) {
@@ -170,9 +172,21 @@ function Home({ userEmail }) {
   }
 
   useEffect(() => {
+    let today = new Date();
+    let yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    let formattedToday = today.toISOString().split("T")[0];
+    let formattedYesterday = yesterday.toISOString().split("T")[0];
+
+    let filteredTasks = taskData.filter((task) => {
+      let taskDate = task.dateAdded.split("T")[0];
+      return taskDate === formattedToday || taskDate === formattedYesterday;
+    });
+
     chrome.runtime.sendMessage({
       action: "setNotificationCount",
-      count: taskData.length,
+      count: filteredTasks.length,
     });
   }, [taskData]);
 
@@ -297,14 +311,16 @@ function Home({ userEmail }) {
                   Delete All
                 </span>
               </div>
-              <div
-                className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
-                onClick={copyToClipboard}
-              >
-                <span id="" className="font-normal text-sm py-2">
-                  Copy
-                </span>
-              </div>
+              {isTechLead ? (
+                <div
+                  className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
+                  onClick={copyToClipboard}
+                >
+                  <span id="" className="font-normal text-sm py-2">
+                    Copy Learner Tasks
+                  </span>
+                </div>
+              ) : null}
               <div className="mt-3">
                 <button
                   className="py-2 px-5 font-semibold bg-red-600 rounded-lg"
