@@ -1,9 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "CRXJS React Vite Task",
+  "name": "CRXJS React Vite Example",
   "version": "1.0.0",
   "action": { "default_popup": "index.html" },
-  "permissions": ["tabs", "activeTab"],
+  "permissions": ["tabs", "activeTab", "storage"],
+  "icons": {
+    "48": "assets/icon48.png"
+  },
   "content_scripts": [
     {
       "js": ["./src/content.jsx", "./src/content/font-awesome.js"],

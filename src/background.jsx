@@ -12,6 +12,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const userEmail = user ? user.email : null;
       sendResponse({ userEmail });
     });
+  } else if (message.action === "getCurrentUserUid") {
+    const authSub = onAuthStateChanged(auth, (user) => {
+      const uid = user ? user.uid : null;
+      sendResponse({ uid });
+    });
   } else if (message.action === "saveTaskToFirebase") {
     const authSub = onAuthStateChanged(auth, (user) => {
       if (user && user !== null) {

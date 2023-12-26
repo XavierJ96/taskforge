@@ -13,44 +13,50 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
 
   const taskRef = collection(db, "forgedTasks");
 
-  const unsub = onSnapshot(taskRef, (snapshot) => {
-    let isTaskAdded = false;
+  chrome.runtime.sendMessage({ action: "getCurrentUserUid" }, (response) => {
+    const currentUserUid = response.uid;
+    const unsub = onSnapshot(taskRef, (snapshot) => {
+      let isTaskAdded = false;
 
-    snapshot.docs.forEach((doc) => {
-      let docTitle = doc.data().cardTitle;
-      let docAssignee = doc.data().cardAssignee;
+      snapshot.docs.forEach((doc) => {
+        let docTitle = doc.data().cardTitle;
+        let docAssignee = doc.data().cardAssignee;
+        if (
+          doc.data().author?.id === currentUserUid &&
+          docTitle === cardTitle &&
+          (docAssignee === cardAssignee || doc.data().cardType !== "review")
+        ) {
+          isTaskAdded = true;
+        }
+      });
 
-      if (
-        docTitle === cardTitle &&
-        (docAssignee === cardAssignee || doc.data().cardType !== "review")
-      ) {
-        isTaskAdded = true;
-      }
-    });
+      chrome.runtime.sendMessage(
+        { action: "checkSignInStatus" },
+        (response) => {
+          if (response.userEmail === null) {
+            addButton.disabled = true;
+            text.innerText = "Add to Planner";
+            icon.classList.remove("fa-check");
+            icon.classList.add("fa-plus");
+            return;
+          }
+        }
+      );
 
-    chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
-      if (response.userEmail === null) {
+      if (isTaskAdded) {
+        toggleIconAndText(icon, text, true);
         addButton.disabled = true;
+        text.innerText = "Added";
+        icon.classList.remove("fa-plus");
+        icon.classList.add("fa-check");
+      } else {
+        toggleIconAndText(icon, text, false);
+        addButton.disabled = false;
         text.innerText = "Add to Planner";
         icon.classList.remove("fa-check");
         icon.classList.add("fa-plus");
-        return;
       }
     });
-
-    if (isTaskAdded) {
-      toggleIconAndText(icon, text, true);
-      addButton.disabled = true;
-      text.innerText = "Added";
-      icon.classList.remove("fa-plus");
-      icon.classList.add("fa-check");
-    } else {
-      toggleIconAndText(icon, text, false);
-      addButton.disabled = false;
-      text.innerText = "Add to Planner";
-      icon.classList.remove("fa-check");
-      icon.classList.add("fa-plus");
-    }
   });
 
   addButton.addEventListener("click", () => {
