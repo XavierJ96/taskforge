@@ -3,7 +3,6 @@ import {
   HashRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
 } from "react-router-dom";
 import { onAuthStateChanged, getAuth, signOut } from "firebase/auth";
@@ -55,7 +54,7 @@ function App() {
               path="/register"
               element={<Register updateUserEmail={setUserEmail} />}
             />
-             <Route path="/forgot_password" element={<ForgotPassword />} />
+            <Route path="/forgot_password" element={<ForgotPassword />} />
             <Route path="/*" element={<Navigate to="/login" />} />
           </>
         )}
