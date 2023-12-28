@@ -1,0 +1,49 @@
+name: 🪲 Bug Report
+description: Report a bug
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below to help everyone identify and fix the bug
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        Example bug report:
+        1. Log in with username/password
+        2. Click "Messages" on the left menu
+        3. Open any message in the list
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: How often does this bug happen?
+      description: |
+        Following the repro steps above, how easily are you able to reproduce this bug?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - Only once
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What was the expected result?
+      placeholder: I expected this to happen
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Extra fields
+      options:
+        - label: I have used the search function to check if an issue already exists
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue! We will get back to you as soon as possible.
