@@ -1,10 +1,9 @@
 "use strict";
 
-import "./index.css";
-import "./content/injectBtnStyles.css";
-import { db, auth } from "./firebase_config";
-import { collection, onSnapshot, getDocs } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import "./styles/index.css";
+import "./styles/injectBtnStyles.css";
+import { db } from "./utils/firebase_config";
+import { collection, onSnapshot } from "firebase/firestore";
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
   const addButton = createAddButton();
@@ -21,12 +20,23 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
       snapshot.docs.forEach((doc) => {
         let docTitle = doc.data().cardTitle;
         let docAssignee = doc.data().cardAssignee;
+
         if (
           doc.data().author?.id === currentUserUid &&
           docTitle === cardTitle &&
           (docAssignee === cardAssignee || doc.data().cardType !== "review")
         ) {
-          isTaskAdded = true;
+          let docDate = new Date(doc.data().dateAdded);
+          let today = new Date();
+          let yesterday = new Date();
+          yesterday.setDate(today.getDate() - 1);
+
+          if (
+            docDate.toDateString() === today.toDateString() ||
+            docDate.toDateString() === yesterday.toDateString()
+          ) {
+            isTaskAdded = true;
+          }
         }
       });
 

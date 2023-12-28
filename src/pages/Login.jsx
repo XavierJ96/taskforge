@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "../firebase_config";
+import { auth } from "../utils/firebase_config";
 
 function Login({ updateUserEmail }) {
   const navigate = useNavigate();

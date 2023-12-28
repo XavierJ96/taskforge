@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { updateDoc, doc, deleteDoc } from "firebase/firestore";
-import { db } from "../firebase_config";
+import { db } from "../utils/firebase_config";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -41,6 +41,7 @@ function TaskCard({ cardTitle, cardAssignee, taskId, isChecked, cardType }) {
       <label className="checkbox">
         <input
           type="checkbox"
+          name="task-checked"
           className="checkbox__input"
           checked={localIsChecked}
           onChange={handleCheckboxChange}
