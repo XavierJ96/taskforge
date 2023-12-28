@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { onAuthStateChanged, getAuth, signOut } from "firebase/auth";
-import "./App.css";
+import "./styles/App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";

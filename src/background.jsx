@@ -1,7 +1,7 @@
 "use strict";
 
-import { db, auth } from "./firebase_config";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { db, auth } from "./utils/firebase_config";
+import { addDoc, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
