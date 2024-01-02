@@ -114,10 +114,15 @@ function Home({ userEmail }) {
     ));
   };
 
-  const copyToClipboard = () => {
+  const copyLearnerData = () => {
     const data = taskUtils.formattedData(learnerData);
     taskUtils.copyToClipboard(data);
   };
+
+  const copyMyTasks = () => {
+    const data = taskUtils.formatMyData(taskData);
+    taskUtils.copyToClipboard(data);
+  }
 
   const showTasks = (section) => {
     if (section === "today") {
@@ -138,8 +143,9 @@ function Home({ userEmail }) {
         userEmail={userEmail}
         togglePopup={togglePopup}
         handleDeleteAll={handleDeleteAll}
-        copyToClipboard={copyToClipboard}
+        copyLearnerData={copyLearnerData}
         logout={logout}
+        copyMyTasks={copyMyTasks}
         isTechLead={isTechLead}
         isPopupVisible={isPopupVisible}
       />

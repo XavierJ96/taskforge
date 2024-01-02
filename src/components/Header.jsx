@@ -4,10 +4,11 @@ function Header({
   userEmail,
   togglePopup,
   handleDeleteAll,
-  copyToClipboard,
+  copyLearnerData,
   logout,
   isPopupVisible,
   isTechLead,
+  copyMyTasks,
 }) {
   return (
     <div className="header">
@@ -59,13 +60,21 @@ function Header({
             {isTechLead ? (
               <div
                 className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
-                onClick={copyToClipboard}
+                onClick={copyLearnerData}
               >
-                <span id="" className="font-normal text-sm py-2">
+                <span id="" className="font-normal text-sm py-2 active:scale-90">
                   Copy Learner Tasks
                 </span>
               </div>
             ) : null}
+            <div
+              className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
+              onClick={copyMyTasks}
+            >
+              <span id="" className="font-normal text-sm py-2 active:scale-90">
+                Copy My Tasks
+              </span>
+            </div>
             <div className="mt-3">
               <button
                 className="py-2 px-5 font-semibold bg-red-600 rounded-lg"
