@@ -32,11 +32,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
