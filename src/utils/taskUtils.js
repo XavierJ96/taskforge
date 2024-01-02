@@ -98,13 +98,7 @@ export const formattedData = (learnerData) => {
       (card) => dateAddedStr(card) === new Date().toDateString()
     );
 
-    todayCards.forEach((card) => {
-      if (card.isChecked) {
-        formattedData += ` ${card.cardTitle} ${
-          card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-        }\n`;
-      }
-    });
+    formattedData += formatSectionData(todayCards, "today");
 
     formattedData += "\nYesterday:\n";
 
@@ -114,13 +108,7 @@ export const formattedData = (learnerData) => {
         new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
     );
 
-    yesterdayCards.forEach((card) => {
-      if (card.isChecked) {
-        formattedData += ` ${card.cardTitle} ${
-          card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-        }\n`;
-      }
-    });
+    formattedData += formatSectionData(yesterdayCards);
 
     formattedData += "\nMissed:\n";
 
@@ -131,11 +119,7 @@ export const formattedData = (learnerData) => {
           new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
     );
 
-    missedCards.forEach((card) => {
-      formattedData += ` ${card.cardTitle} ${
-        card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-      }\n`;
-    });
+    formattedData += formatSectionData(missedCards, "missed");
 
     formattedData += "\n";
   }
@@ -146,7 +130,7 @@ export const formattedData = (learnerData) => {
 const formatSectionData = (data, option) => {
   return data
     .map((card) => {
-      if (option === "missed" || card.isChecked) {
+      if (option === "missed" || card.isChecked || option === "today") {
         return ` ${card.cardTitle} ${
           card.cardType === "review" ? `by ${card.cardAssignee}` : ""
         }\n`;
@@ -164,7 +148,7 @@ export function formatMyData(cards) {
       new Date(card.dateAdded).toDateString() === new Date().toDateString()
   );
 
-  formattedData += formatSectionData(todayCards);
+  formattedData += formatSectionData(todayCards, "today");
 
   formattedData += "\nYesterday:\n";
 
