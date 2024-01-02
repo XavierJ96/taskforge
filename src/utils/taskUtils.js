@@ -85,32 +85,53 @@ export const fetchLearnerData = async (
   return () => unsub();
 };
 
+const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
+
 export const formattedData = (learnerData) => {
   let formattedData = "";
+  const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
   for (const learner in learnerData) {
     formattedData += `Learner: ${learner}\nToday:\n`;
 
     const todayCards = learnerData[learner].filter(
-      (card) =>
-        new Date(card.dateAdded).toDateString() === new Date().toDateString()
+      (card) => dateAddedStr(card) === new Date().toDateString()
     );
 
     todayCards.forEach((card) => {
-      formattedData += ` ${card.cardTitle} ${
-        card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-      }\n`;
+      if (card.isChecked) {
+        formattedData += ` ${card.cardTitle} ${
+          card.cardType === "review" ? `by ${card.cardAssignee}` : ""
+        }\n`;
+      }
     });
 
     formattedData += "\nYesterday:\n";
 
     const yesterdayCards = learnerData[learner].filter(
       (card) =>
-        new Date(card.dateAdded).toDateString() ===
+        dateAddedStr(card) ===
         new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
     );
 
     yesterdayCards.forEach((card) => {
+      if (card.isChecked) {
+        formattedData += ` ${card.cardTitle} ${
+          card.cardType === "review" ? `by ${card.cardAssignee}` : ""
+        }\n`;
+      }
+    });
+
+    formattedData += "\nMissed:\n";
+
+    const missedCards = learnerData[learner].filter(
+      (card) =>
+        !card.isChecked &&
+        dateAddedStr(card) ===
+          new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
+    );
+
+    missedCards.forEach((card) => {
       formattedData += ` ${card.cardTitle} ${
         card.cardType === "review" ? `by ${card.cardAssignee}` : ""
       }\n`;
@@ -121,6 +142,53 @@ export const formattedData = (learnerData) => {
 
   return formattedData.trim();
 };
+
+const formatSectionData = (data, option) => {
+  return data
+    .map((card) => {
+      if (option === "missed" || card.isChecked) {
+        return ` ${card.cardTitle} ${
+          card.cardType === "review" ? `by ${card.cardAssignee}` : ""
+        }\n`;
+      }
+      return "";
+    })
+    .join("");
+};
+
+export function formatMyData(cards) {
+  let formattedData = "Today:\n";
+
+  const todayCards = cards.filter(
+    (card) =>
+      new Date(card.dateAdded).toDateString() === new Date().toDateString()
+  );
+
+  formattedData += formatSectionData(todayCards);
+
+  formattedData += "\nYesterday:\n";
+
+  const yesterdayCards = cards.filter(
+    (card) =>
+      new Date(card.dateAdded).toDateString() ===
+      new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
+  );
+
+  formattedData += formatSectionData(yesterdayCards);
+
+  formattedData += "\nMissed:\n";
+
+  const missedCards = cards.filter(
+    (card) =>
+      !card.isChecked &&
+      dateAddedStr(card) ===
+        new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
+  );
+
+  formattedData += formatSectionData(missedCards, "missed");
+
+  return formattedData.trim();
+}
 
 export const copyToClipboard = (data) => {
   try {
