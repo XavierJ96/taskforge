@@ -1,6 +1,6 @@
 {
-  "name": "TaskForge",
-  "description": "For all tilde tasks",
+  "name": "taskforge",
+  "description": "for all tilde tasks",
   "private": true,
   "version": "1.0.0",
   "scripts": {
