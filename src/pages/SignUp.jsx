@@ -18,6 +18,7 @@ function Register({ updateUserEmail }) {
 
   const isValidEmail = (email) => {
     const domain = email.split("@")[1];
+    setError(null);
     return wellKnownProviders.includes(domain);
   };
 
@@ -26,7 +27,8 @@ function Register({ updateUserEmail }) {
 
     if (!isValidEmail(email)) {
       setError(
-        "Invalid email provider. Please use a well-known email provider."
+        `Invalid email provider. Please use a well-known email provider.
+        \n ${wellKnownProviders}`
       );
       return;
     }
@@ -48,7 +50,7 @@ function Register({ updateUserEmail }) {
   return (
     <div className="text-[#E4E4E4] flex justify-center h-screen">
       <div
-        className="my-auto max-w-xs min-w-[260px]
+        className="my-auto max-w-[260px] min-w-[260px]
       "
       >
         <h2 className=" text-center text-xl font-bold leading-9 tracking-tight">
@@ -90,8 +92,11 @@ function Register({ updateUserEmail }) {
                 name="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {setPassword(e.target.value)
+                  setError(null);}}
                 autoComplete="current-password"
+                pattern=".{8,}"
+                title="Password must be at least 8 characters long."
                 required
                 className="block w-full p-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
