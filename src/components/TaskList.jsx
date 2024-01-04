@@ -12,6 +12,7 @@ function TaskList({ tasks, isVisible }) {
           cardAssignee={task.props.cardAssignee}
           isChecked={task.props.isChecked}
           cardType={task.props.cardType}
+          gitLink={task.props.gitLink}
         />
       ))}
     </div>

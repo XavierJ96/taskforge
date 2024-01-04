@@ -5,7 +5,14 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-function TaskCard({ cardTitle, cardAssignee, taskId, isChecked, cardType }) {
+function TaskCard({
+  cardTitle,
+  cardAssignee,
+  taskId,
+  isChecked,
+  cardType,
+  gitLink,
+}) {
   const [localIsChecked, setLocalIsChecked] = useState(isChecked);
   const [isDivVisible, setIsDivVisible] = useState(false);
 
@@ -56,7 +63,7 @@ function TaskCard({ cardTitle, cardAssignee, taskId, isChecked, cardType }) {
           <div
             id="card-title"
             className="whitespace-nowrap overflow-hidden overflow-ellipsis"
-            style={{ width: isDivVisible ? "260px" : "100%" }}
+            style={{ width: isDivVisible ? "260px" : "90%" }}
           >
             {cardTitle}
           </div>
@@ -71,12 +78,16 @@ function TaskCard({ cardTitle, cardAssignee, taskId, isChecked, cardType }) {
                 className="my-auto text-[#8e8e92] mr-1 w-4 h-4 hover:text-red-600"
               />
             </button>
-            <button>
-              <FontAwesomeIcon
-                icon={faGithub}
-                className="my-auto w-4 h-4 hover:text-[#007bff]"
-              />
-            </button>
+            {gitLink && (
+              <a href={gitLink} target="_blank" rel="noopener noreferrer">
+                <button>
+                  <FontAwesomeIcon
+                    icon={faGithub}
+                    className="my-auto w-4 h-4 hover:text-[#007bff]"
+                  />
+                </button>
+              </a>
+            )}
           </div>
         </div>
         {cardType === "review" ? (
