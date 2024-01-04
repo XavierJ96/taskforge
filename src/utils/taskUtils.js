@@ -98,7 +98,19 @@ export const formattedData = (learnerData) => {
       (card) => dateAddedStr(card) === new Date().toDateString()
     );
 
-    formattedData += formatSectionData(todayCards, "today");
+    const todayProjectsCards = todayCards.filter(
+      (card) => card.cardType === "project"
+    );
+
+    formattedData += formatSectionData(todayProjectsCards, "today");
+
+    formattedData += "\nReviews:\n";
+
+    const todayReviewCards = todayCards.filter(
+      (card) => card.cardType === "review"
+    );
+
+    formattedData += formatSectionData(todayReviewCards, "today");
 
     formattedData += "\nYesterday:\n";
 
@@ -108,8 +120,19 @@ export const formattedData = (learnerData) => {
         new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
     );
 
-    formattedData += formatSectionData(yesterdayCards);
+    const yesterdayProjectsCards = yesterdayCards.filter(
+      (card) => card.cardType === "project"
+    );
 
+    formattedData += formatSectionData(yesterdayProjectsCards);
+
+    formattedData += "\nReviews:\n";
+
+    const yesterdayReviewCards = yesterdayCards.filter(
+      (card) => card.cardType === "review"
+    );
+
+    formattedData += formatSectionData(yesterdayReviewCards, "today");
     formattedData += "\nMissed:\n";
 
     const missedCards = learnerData[learner].filter(
@@ -148,7 +171,19 @@ export function formatMyData(cards) {
       new Date(card.dateAdded).toDateString() === new Date().toDateString()
   );
 
-  formattedData += formatSectionData(todayCards, "today");
+  const todayProjectsCards = todayCards.filter(
+    (card) => card.cardType === "project"
+  );
+
+  formattedData += formatSectionData(todayProjectsCards, "today");
+
+  formattedData += "\nReviews:\n";
+
+  const todayReviewCards = todayCards.filter(
+    (card) => card.cardType === "review"
+  );
+
+  formattedData += formatSectionData(todayReviewCards, "today");
 
   formattedData += "\nYesterday:\n";
 
@@ -158,7 +193,19 @@ export function formatMyData(cards) {
       new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
   );
 
-  formattedData += formatSectionData(yesterdayCards);
+  const yesterdayProjectsCards = yesterdayCards.filter(
+    (card) => card.cardType === "project"
+  );
+
+  formattedData += formatSectionData(yesterdayProjectsCards);
+
+  formattedData += "\nReviews:\n";
+
+  const yesterdayReviewCards = yesterdayCards.filter(
+    (card) => card.cardType === "review"
+  );
+
+  formattedData += formatSectionData(yesterdayReviewCards, "today");
 
   formattedData += "\nMissed:\n";
 
