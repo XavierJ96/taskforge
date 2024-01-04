@@ -28,12 +28,9 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
         ) {
           let docDate = new Date(doc.data().dateAdded);
           let today = new Date();
-          let yesterday = new Date();
-          yesterday.setDate(today.getDate() - 1);
-
+          
           if (
-            docDate.toDateString() === today.toDateString() ||
-            docDate.toDateString() === yesterday.toDateString()
+            docDate.toDateString() === today.toDateString()
           ) {
             isTaskAdded = true;
           }
