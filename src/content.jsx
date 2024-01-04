@@ -5,7 +5,7 @@ import "./styles/injectBtnStyles.css";
 import { db } from "./utils/firebase_config";
 import { collection, onSnapshot } from "firebase/firestore";
 
-function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
+function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const addButton = createAddButton();
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
@@ -28,10 +28,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
         ) {
           let docDate = new Date(doc.data().dateAdded);
           let today = new Date();
-          
-          if (
-            docDate.toDateString() === today.toDateString()
-          ) {
+
+          if (docDate.toDateString() === today.toDateString()) {
             isTaskAdded = true;
           }
         }
@@ -78,6 +76,7 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee) {
       dateAdded: new Date(),
       isChecked: false,
       ...(cardType === "review" && { cardAssignee: cardAssignee }),
+      ...(gitLink && { gitLink: gitLink }),
     });
 
     toggleIconAndText(icon, text, true);
@@ -153,12 +152,18 @@ async function processCard(child, index) {
           "div.MuiCardContent-root > p"
         );
 
+        const gitLink = getLink(card);
+
         const cardTitle = cardTitleElement.textContent.trim();
         const cardAssignee = cardAssigneeElement.textContent.trim();
 
         const cardType = getCardType(card);
 
-        addButtonToCard(card, cardTitle, cardType, cardAssignee);
+        if (gitLink !== null && gitLink !== undefined) {
+          addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink);
+        } else {
+          addButtonToCard(card, cardTitle, cardType, cardAssignee);
+        }
       }
     }
   } else {
@@ -180,6 +185,18 @@ async function getCardData() {
   } else {
     return null;
   }
+}
+
+function getLink(card) {
+  const linkElement = card.querySelector(
+    "div.MuiCardContent-root > div.jss364 > a"
+  );
+
+  if (linkElement) {
+    return linkElement.getAttribute("href");
+  }
+
+  return null;
 }
 
 function getCardType(cardElement) {

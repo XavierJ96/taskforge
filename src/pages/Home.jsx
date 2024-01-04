@@ -110,6 +110,7 @@ function Home({ userEmail }) {
         cardAssignee={task.cardAssignee}
         isChecked={task.isChecked}
         cardType={task.cardType}
+        gitLink={task.gitLink}
       />
     ));
   };

@@ -20,8 +20,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "saveTaskToFirebase") {
     const authSub = onAuthStateChanged(auth, (user) => {
       if (user && user !== null) {
-        const { cardTitle, cardType, cardAssignee, dateAdded, isChecked } =
-          message;
+        const {
+          cardTitle,
+          cardType,
+          cardAssignee,
+          dateAdded,
+          isChecked,
+          gitLink,
+        } = message;
         const tasksCollection = collection(db, "forgedTasks");
 
         const createTasks = async () => {
@@ -32,6 +38,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 cardType,
                 author: { name: user.email, id: user.uid },
                 dateAdded,
+                ...(gitLink !== null &&
+                  gitLink !== undefined && { gitLink: gitLink }),
               });
             } else {
               await addDoc(tasksCollection, {
@@ -41,6 +49,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 author: { name: user.email, id: user.uid },
                 dateAdded,
                 isChecked,
+                ...(gitLink !== null &&
+                  gitLink !== undefined && { gitLink: gitLink }),
               });
             }
           } catch (error) {
