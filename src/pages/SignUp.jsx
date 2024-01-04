@@ -27,7 +27,8 @@ function Register({ updateUserEmail }) {
 
     if (!isValidEmail(email)) {
       setError(
-        "Invalid email provider. Please use a well-known email provider."
+        `Invalid email provider. Please use a well-known email provider.
+        \n ${wellKnownProviders}`
       );
       return;
     }
