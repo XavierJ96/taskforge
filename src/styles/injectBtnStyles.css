@@ -5,6 +5,12 @@
   gap: 6px;
 }
 
+#actionBtn,
+#requestBtn {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
 .icon-container {
   display: inline-block;
   cursor: pointer;
