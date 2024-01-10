@@ -7,6 +7,8 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const addButton = createAddButton();
+  const pushBtn = createAction();
+  const openBtn = requestBtn();
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
 
@@ -16,6 +18,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
     const currentUserUid = response.uid;
     const unsub = onSnapshot(taskRef, (snapshot) => {
       let isTaskAdded = false;
+      let gitPushed = false;
+      let openPr = false;
 
       snapshot.docs.forEach((doc) => {
         let docTitle = doc.data().cardTitle;
@@ -31,6 +35,19 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
 
           if (docDate.toDateString() === today.toDateString()) {
             isTaskAdded = true;
+          }
+
+          if (
+            docDate.toDateString() === today.toDateString() &&
+            doc.data().pushCode
+          ) {
+            gitPushed = true;
+          }
+          if (
+            docDate.toDateString() === today.toDateString() &&
+            doc.data().openPullRequest
+          ) {
+            openPr = true;
           }
         }
       });
@@ -54,8 +71,20 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
         text.innerText = "Added";
         icon.classList.remove("fa-plus");
         icon.classList.add("fa-check");
+        gitPushed
+          ? (pushBtn.style.backgroundColor = "lightgreen")
+          : (pushBtn.style.backgroundColor = "");
+        openPr
+          ? (openBtn.style.backgroundColor = "lightgreen")
+          : (openBtn.style.backgroundColor = "");
       } else {
         toggleIconAndText(icon, text, false);
+        gitPushed
+          ? (pushBtn.style.backgroundColor = "lightgreen")
+          : (pushBtn.style.backgroundColor = "");
+        openPr
+          ? (openBtn.style.backgroundColor = "lightgreen")
+          : (openBtn.style.backgroundColor = "");
         addButton.disabled = false;
         text.innerText = "Add to Planner";
         icon.classList.remove("fa-check");
@@ -77,6 +106,9 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
       isChecked: false,
       ...(cardType === "review" && { cardAssignee: cardAssignee }),
       ...(gitLink && { gitLink: gitLink }),
+      pushCode: pushBtn.style.backgroundColor === "lightgreen" ? true : false,
+      openPullRequest:
+        openBtn.style.backgroundColor === "lightgreen" ? true : false,
     });
 
     toggleIconAndText(icon, text, true);
@@ -84,6 +116,11 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   });
 
   card.appendChild(addButton);
+  
+  if (cardType !== "review") {
+    card.appendChild(pushBtn)
+    card.appendChild(openBtn)
+  }
 }
 
 function toggleIconAndText(icon, text, added) {
@@ -133,6 +170,62 @@ function createAddButton() {
   addButton.appendChild(text);
 
   return addButton;
+}
+
+function createAction() {
+  const pushButton = document.createElement("button");
+  pushButton.id = "actionBtn";
+  pushButton.classList.add("MuiChip-root", "jss367");
+
+  const span = document.createElement("span");
+  const icon = document.createElement("i");
+
+  icon.className = "fa-solid fa-code-commit";
+  span.appendChild(icon);
+
+  pushButton.appendChild(span);
+
+  let isLightGreen = false;
+
+  pushButton.addEventListener("click", () => {
+    if (isLightGreen) {
+      pushButton.style.backgroundColor = "";
+    } else {
+      pushButton.style.backgroundColor = "lightgreen";
+    }
+
+    isLightGreen = !isLightGreen;
+  });
+
+  return pushButton;
+}
+
+function requestBtn() {
+  const requestButton = document.createElement("button");
+  requestButton.id = "requestBtn";
+  requestButton.classList.add("MuiChip-root", "jss367");
+
+  const span = document.createElement("span");
+  const icon = document.createElement("i");
+
+  icon.className = "fa-solid fa-code-compare";
+  span.appendChild(icon);
+
+  requestButton.appendChild(span);
+
+  let isLightGreen = false;
+
+  requestButton.addEventListener("click", () => {
+    if (isLightGreen) {
+      requestButton.style.backgroundColor = "";
+    } else {
+      requestButton.style.backgroundColor = "lightgreen";
+    }
+
+    isLightGreen = !isLightGreen;
+  });
+
+  return requestButton;
 }
 
 async function processCard(child, index) {
