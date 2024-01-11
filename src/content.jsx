@@ -68,6 +68,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
       if (isTaskAdded) {
         toggleIconAndText(icon, text, true);
         addButton.disabled = true;
+        pushBtn.disabled = true;
+        openBtn.disabled = true;
         text.innerText = "Added";
         icon.classList.remove("fa-plus");
         icon.classList.add("fa-check");
@@ -86,6 +88,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
           ? (openBtn.style.backgroundColor = "lightgreen")
           : (openBtn.style.backgroundColor = "");
         addButton.disabled = false;
+        pushBtn.disabled = false;
+        openBtn.disabled = false;
         text.innerText = "Add to Planner";
         icon.classList.remove("fa-check");
         icon.classList.add("fa-plus");
@@ -116,10 +120,10 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   });
 
   card.appendChild(addButton);
-  
+
   if (cardType !== "review") {
-    card.appendChild(pushBtn)
-    card.appendChild(openBtn)
+    card.appendChild(pushBtn);
+    card.appendChild(openBtn);
   }
 }
 
@@ -184,7 +188,8 @@ function createActionBtn(id, iconClass) {
   button.appendChild(span);
 
   button.addEventListener("click", () => {
-    button.style.backgroundColor = button.style.backgroundColor === "" ? "lightgreen" : "";
+    button.style.backgroundColor =
+      button.style.backgroundColor === "" ? "lightgreen" : "";
   });
 
   return button;
