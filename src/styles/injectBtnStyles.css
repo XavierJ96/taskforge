@@ -5,10 +5,14 @@
   gap: 6px;
 }
 
-#actionBtn,
+#pushBtn,
 #requestBtn {
   padding: 5px 10px;
   cursor: pointer;
+}
+
+#pushBtn {
+  margin-right: 5px;
 }
 
 .icon-container {

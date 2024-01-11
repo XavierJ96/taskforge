@@ -7,8 +7,8 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const addButton = createAddButton();
-  const pushBtn = createAction();
-  const openBtn = requestBtn();
+  const pushBtn = createActionBtn("pushBtn", "fa-solid fa-code-commit");
+  const openBtn = createActionBtn("requestBtn", "fa-solid fa-code-compare");
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
 
@@ -172,60 +172,22 @@ function createAddButton() {
   return addButton;
 }
 
-function createAction() {
-  const pushButton = document.createElement("button");
-  pushButton.id = "actionBtn";
-  pushButton.classList.add("MuiChip-root", "jss367");
+function createActionBtn(id, iconClass) {
+  const button = document.createElement("button");
+  button.id = id;
+  button.classList.add("MuiChip-root", "jss367");
 
   const span = document.createElement("span");
   const icon = document.createElement("i");
-
-  icon.className = "fa-solid fa-code-commit";
+  icon.className = iconClass;
   span.appendChild(icon);
+  button.appendChild(span);
 
-  pushButton.appendChild(span);
-
-  let isLightGreen = false;
-
-  pushButton.addEventListener("click", () => {
-    if (isLightGreen) {
-      pushButton.style.backgroundColor = "";
-    } else {
-      pushButton.style.backgroundColor = "lightgreen";
-    }
-
-    isLightGreen = !isLightGreen;
+  button.addEventListener("click", () => {
+    button.style.backgroundColor = button.style.backgroundColor === "" ? "lightgreen" : "";
   });
 
-  return pushButton;
-}
-
-function requestBtn() {
-  const requestButton = document.createElement("button");
-  requestButton.id = "requestBtn";
-  requestButton.classList.add("MuiChip-root", "jss367");
-
-  const span = document.createElement("span");
-  const icon = document.createElement("i");
-
-  icon.className = "fa-solid fa-code-compare";
-  span.appendChild(icon);
-
-  requestButton.appendChild(span);
-
-  let isLightGreen = false;
-
-  requestButton.addEventListener("click", () => {
-    if (isLightGreen) {
-      requestButton.style.backgroundColor = "";
-    } else {
-      requestButton.style.backgroundColor = "lightgreen";
-    }
-
-    isLightGreen = !isLightGreen;
-  });
-
-  return requestButton;
+  return button;
 }
 
 async function processCard(child, index) {
