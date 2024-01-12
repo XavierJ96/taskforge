@@ -11,7 +11,7 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const openBtn = createActionBtn("requestBtn", "fa-solid fa-code-compare");
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
-
+  let user;
   const taskRef = collection(db, "forgedTasks");
 
   chrome.runtime.sendMessage({ action: "getCurrentUserUid" }, (response) => {
@@ -55,7 +55,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
       chrome.runtime.sendMessage(
         { action: "checkSignInStatus" },
         (response) => {
-          if (response.userEmail === null) {
+          user = response.user;
+          if (response.user.userEmail === null) {
             addButton.disabled = true;
             text.innerText = "Add to Planner";
             icon.classList.remove("fa-check");
@@ -104,6 +105,7 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
 
     chrome.runtime.sendMessage({
       action: "saveTaskToFirebase",
+      user: user,
       cardTitle: cardTitle,
       cardType: cardType,
       dateAdded: new Date(),
