@@ -27,6 +27,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         dateAdded,
         isChecked,
         gitLink,
+        pushCode,
+        openPullRequest,
       } = message;
       const tasksCollection = collection(db, "forgedTasks");
       const createTasks = async () => {
