@@ -252,9 +252,17 @@ export const logoutUser = async () => {
 };
 
 export const deleteAllTasks = (taskData, taskRef, setTaskData) => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
   try {
     taskData.forEach(async (task) => {
-      await deleteDoc(doc(taskRef, task.id));
+      if (
+        new Date(task.dateAdded).toDateString() === today.toDateString() ||
+        new Date(task.dateAdded).toDateString() === yesterday.toDateString()
+      ) {
+        await deleteDoc(doc(taskRef, task.id));
+      }
     });
 
     setTaskData([]);
