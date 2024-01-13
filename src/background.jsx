@@ -27,6 +27,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         dateAdded,
         isChecked,
         gitLink,
+        pushCode,
+        openPullRequest,
       } = message;
       const tasksCollection = collection(db, "forgedTasks");
       const createTasks = async () => {
@@ -39,6 +41,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               dateAdded,
               ...(gitLink !== null &&
                 gitLink !== undefined && { gitLink: gitLink }),
+              pushCode,
+              openPullRequest,
             });
           } else {
             await addDoc(tasksCollection, {
@@ -50,13 +54,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               isChecked,
               ...(gitLink !== null &&
                 gitLink !== undefined && { gitLink: gitLink }),
+              pushCode,
+              openPullRequest,
             });
           }
         } catch (error) {
           console.error("Error saving task to Firebase:", error);
         }
       };
-
       createTasks();
     } else {
       console.log("User not signed in. Task not created.");

@@ -5,6 +5,16 @@
   gap: 6px;
 }
 
+#pushBtn,
+#requestBtn {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+#pushBtn {
+  margin-right: 5px;
+}
+
 .icon-container {
   display: inline-block;
   cursor: pointer;

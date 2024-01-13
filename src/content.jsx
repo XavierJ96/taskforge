@@ -7,6 +7,8 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const addButton = createAddButton();
+  const pushBtn = createActionBtn("pushBtn", "fa-solid fa-code-commit");
+  const openBtn = createActionBtn("requestBtn", "fa-solid fa-code-compare");
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
   let user;
@@ -16,6 +18,8 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
     const currentUserUid = response.uid;
     const unsub = onSnapshot(taskRef, (snapshot) => {
       let isTaskAdded = false;
+      let gitPushed = false;
+      let openPr = false;
 
       snapshot.docs.forEach((doc) => {
         let docTitle = doc.data().cardTitle;
@@ -31,6 +35,19 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
 
           if (docDate.toDateString() === today.toDateString()) {
             isTaskAdded = true;
+          }
+
+          if (
+            docDate.toDateString() === today.toDateString() &&
+            doc.data().pushCode
+          ) {
+            gitPushed = true;
+          }
+          if (
+            docDate.toDateString() === today.toDateString() &&
+            doc.data().openPullRequest
+          ) {
+            openPr = true;
           }
         }
       });
@@ -52,12 +69,28 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
       if (isTaskAdded) {
         toggleIconAndText(icon, text, true);
         addButton.disabled = true;
+        pushBtn.disabled = true;
+        openBtn.disabled = true;
         text.innerText = "Added";
         icon.classList.remove("fa-plus");
         icon.classList.add("fa-check");
+        gitPushed
+          ? (pushBtn.style.backgroundColor = "lightgreen")
+          : (pushBtn.style.backgroundColor = "");
+        openPr
+          ? (openBtn.style.backgroundColor = "lightgreen")
+          : (openBtn.style.backgroundColor = "");
       } else {
         toggleIconAndText(icon, text, false);
+        gitPushed
+          ? (pushBtn.style.backgroundColor = "lightgreen")
+          : (pushBtn.style.backgroundColor = "");
+        openPr
+          ? (openBtn.style.backgroundColor = "lightgreen")
+          : (openBtn.style.backgroundColor = "");
         addButton.disabled = false;
+        pushBtn.disabled = false;
+        openBtn.disabled = false;
         text.innerText = "Add to Planner";
         icon.classList.remove("fa-check");
         icon.classList.add("fa-plus");
@@ -79,6 +112,9 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
       isChecked: false,
       ...(cardType === "review" && { cardAssignee: cardAssignee }),
       ...(gitLink && { gitLink: gitLink }),
+      pushCode: pushBtn.style.backgroundColor === "lightgreen" ? true : false,
+      openPullRequest:
+        openBtn.style.backgroundColor === "lightgreen" ? true : false,
     });
 
     toggleIconAndText(icon, text, true);
@@ -86,6 +122,11 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   });
 
   card.appendChild(addButton);
+
+  if (cardType !== "review") {
+    card.appendChild(pushBtn);
+    card.appendChild(openBtn);
+  }
 }
 
 function toggleIconAndText(icon, text, added) {
@@ -135,6 +176,25 @@ function createAddButton() {
   addButton.appendChild(text);
 
   return addButton;
+}
+
+function createActionBtn(id, iconClass) {
+  const button = document.createElement("button");
+  button.id = id;
+  button.classList.add("MuiChip-root", "jss367");
+
+  const span = document.createElement("span");
+  const icon = document.createElement("i");
+  icon.className = iconClass;
+  span.appendChild(icon);
+  button.appendChild(span);
+
+  button.addEventListener("click", () => {
+    button.style.backgroundColor =
+      button.style.backgroundColor === "" ? "lightgreen" : "";
+  });
+
+  return button;
 }
 
 async function processCard(child, index) {

@@ -92,27 +92,7 @@ export const formattedData = (learnerData) => {
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
   for (const learner in learnerData) {
-    formattedData += `Learner: ${learner}\nToday:\n`;
-
-    const todayCards = learnerData[learner].filter(
-      (card) => dateAddedStr(card) === new Date().toDateString()
-    );
-
-    const todayProjectsCards = todayCards.filter(
-      (card) => card.cardType === "project"
-    );
-
-    formattedData += formatSectionData(todayProjectsCards, "today");
-
-    formattedData += "\nReviews:\n";
-
-    const todayReviewCards = todayCards.filter(
-      (card) => card.cardType === "review"
-    );
-
-    formattedData += formatSectionData(todayReviewCards, "today");
-
-    formattedData += "\nYesterday:\n";
+    formattedData += `Learner: ${learner}\nYesterday:\n`;
 
     const yesterdayCards = learnerData[learner].filter(
       (card) =>
@@ -144,6 +124,26 @@ export const formattedData = (learnerData) => {
 
     formattedData += formatSectionData(missedCards, "missed");
 
+    formattedData += `\nToday:\n`;
+
+    const todayCards = learnerData[learner].filter(
+      (card) => dateAddedStr(card) === new Date().toDateString()
+    );
+
+    const todayProjectsCards = todayCards.filter(
+      (card) => card.cardType === "project"
+    );
+
+    formattedData += formatSectionData(todayProjectsCards, "today");
+
+    formattedData += "\nReviews:\n";
+
+    const todayReviewCards = todayCards.filter(
+      (card) => card.cardType === "review"
+    );
+
+    formattedData += formatSectionData(todayReviewCards, "today");
+
     formattedData += "\n";
   }
 
@@ -154,9 +154,11 @@ const formatSectionData = (data, option) => {
   return data
     .map((card) => {
       if (option === "missed" || card.isChecked || option === "today") {
-        return ` ${card.cardTitle} ${
+        return `${card.cardTitle} ${
           card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-        }\n`;
+        }-${card.pushCode ? " GIT Push" : ""}${
+          card.pushCode && card.openPullRequest ? " &" : ""
+        }${card.openPullRequest ? " Open PR" : ""}\n`;
       }
       return "";
     })
@@ -164,28 +166,8 @@ const formatSectionData = (data, option) => {
 };
 
 export function formatMyData(cards) {
-  let formattedData = "Today:\n";
-
-  const todayCards = cards.filter(
-    (card) =>
-      new Date(card.dateAdded).toDateString() === new Date().toDateString()
-  );
-
-  const todayProjectsCards = todayCards.filter(
-    (card) => card.cardType === "project"
-  );
-
-  formattedData += formatSectionData(todayProjectsCards, "today");
-
-  formattedData += "\nReviews:\n";
-
-  const todayReviewCards = todayCards.filter(
-    (card) => card.cardType === "review"
-  );
-
-  formattedData += formatSectionData(todayReviewCards, "today");
-
-  formattedData += "\nYesterday:\n";
+  console.log(cards);
+  let formattedData = "Yesterday:\n";
 
   const yesterdayCards = cards.filter(
     (card) =>
@@ -217,6 +199,27 @@ export function formatMyData(cards) {
   );
 
   formattedData += formatSectionData(missedCards, "missed");
+
+  formattedData += "\nToday:\n";
+
+  const todayCards = cards.filter(
+    (card) =>
+      new Date(card.dateAdded).toDateString() === new Date().toDateString()
+  );
+
+  const todayProjectsCards = todayCards.filter(
+    (card) => card.cardType === "project"
+  );
+
+  formattedData += formatSectionData(todayProjectsCards, "today");
+
+  formattedData += "\nReviews:\n";
+
+  const todayReviewCards = todayCards.filter(
+    (card) => card.cardType === "review"
+  );
+
+  formattedData += formatSectionData(todayReviewCards, "today");
 
   return formattedData.trim();
 }
