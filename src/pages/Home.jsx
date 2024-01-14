@@ -16,6 +16,7 @@ function Home({ userEmail }) {
   const [learnerData, setLearnerData] = useState({});
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isTechLead, setIsTechLead] = useState(false);
+  const [isTechCoach, setIsTechCoach] = useState(false);
 
   useEffect(() => {
     chrome.storage.local.get(["todayVisible", "yesterdayVisible"], (result) => {
@@ -36,7 +37,8 @@ function Home({ userEmail }) {
       learnerRef,
       userEmail,
       setIsTechLead,
-      setLearnerData
+      setLearnerData,
+      setIsTechCoach
     );
   }, []);
 
@@ -79,7 +81,7 @@ function Home({ userEmail }) {
     today,
     yesterday
   );
-  
+
   const projectTasksCount = taskUtils.getCountForCardType(
     "project",
     taskData,
@@ -116,14 +118,19 @@ function Home({ userEmail }) {
   };
 
   const copyLearnerData = () => {
-    const data = taskUtils.formattedData(learnerData);
+    const data = taskUtils.formattedData(learnerData, true);
     taskUtils.copyToClipboard(data);
   };
 
   const copyMyTasks = () => {
-    const data = taskUtils.formatMyData(taskData);
+    const data = taskUtils.formattedData(taskData, false);
     taskUtils.copyToClipboard(data);
-  }
+  };
+
+  const copyWeekReport = () => {
+    const data = taskUtils.formatWeeklyReport(learnerData);
+    taskUtils.copyToClipboard(data);
+  };
 
   const showTasks = (section) => {
     if (section === "today") {
@@ -145,9 +152,11 @@ function Home({ userEmail }) {
         togglePopup={togglePopup}
         handleDeleteAll={handleDeleteAll}
         copyLearnerData={copyLearnerData}
+        copyWeekReport={copyWeekReport}
         logout={logout}
         copyMyTasks={copyMyTasks}
         isTechLead={isTechLead}
+        isTechCoach={isTechCoach}
         isPopupVisible={isPopupVisible}
       />
       <div className="task-board space-y-3">

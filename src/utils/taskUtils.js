@@ -48,7 +48,8 @@ export const fetchLearnerData = async (
   learnerRef,
   userEmail,
   setIsTechLead,
-  setLearnerData
+  setLearnerData,
+  setIsTechCoach
 ) => {
   const tasksByLearner = {};
   const unsub = onSnapshot(learnerRef, async (snapshot) => {
@@ -56,6 +57,10 @@ export const fetchLearnerData = async (
       if (doc.data().techLead === userEmail) {
         setIsTechLead(true);
       }
+      if (doc.data().techCoach === userEmail) {
+        setIsTechCoach(true);
+      }
+
       const learnersMap = doc.data().learners;
 
       if (Array.isArray(learnersMap) && learnersMap.length > 0) {
@@ -85,144 +90,162 @@ export const fetchLearnerData = async (
   return () => unsub();
 };
 
-const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
-
-export const formattedData = (learnerData) => {
-  let formattedData = "";
-  const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
-
-  for (const learner in learnerData) {
-    formattedData += `Learner: ${learner}\nYesterday:\n`;
-
-    const yesterdayCards = learnerData[learner].filter(
-      (card) =>
-        dateAddedStr(card) ===
-        new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
-    );
-
-    const yesterdayProjectsCards = yesterdayCards.filter(
-      (card) => card.cardType === "project"
-    );
-
-    formattedData += formatSectionData(yesterdayProjectsCards);
-
-    formattedData += "\nReviews:\n";
-
-    const yesterdayReviewCards = yesterdayCards.filter(
-      (card) => card.cardType === "review"
-    );
-
-    formattedData += formatSectionData(yesterdayReviewCards, "today");
-    formattedData += "\nMissed:\n";
-
-    const missedCards = learnerData[learner].filter(
-      (card) =>
-        !card.isChecked &&
-        dateAddedStr(card) ===
-          new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
-    );
-
-    formattedData += formatSectionData(missedCards, "missed");
-
-    formattedData += `\nToday:\n`;
-
-    const todayCards = learnerData[learner].filter(
-      (card) => dateAddedStr(card) === new Date().toDateString()
-    );
-
-    const todayProjectsCards = todayCards.filter(
-      (card) => card.cardType === "project"
-    );
-
-    formattedData += formatSectionData(todayProjectsCards, "today");
-
-    formattedData += "\nReviews:\n";
-
-    const todayReviewCards = todayCards.filter(
-      (card) => card.cardType === "review"
-    );
-
-    formattedData += formatSectionData(todayReviewCards, "today");
-
-    formattedData += "\n";
-  }
-
-  return formattedData.trim();
-};
-
 const formatSectionData = (data, option) => {
   return data
     .map((card) => {
       if (option === "missed" || card.isChecked || option === "today") {
         return `${card.cardTitle} ${
           card.cardType === "review" ? `by ${card.cardAssignee}` : ""
-        }-${card.pushCode ? " GIT Push" : ""}${
-          card.pushCode && card.openPullRequest ? " &" : ""
-        }${card.openPullRequest ? " Open PR" : ""}\n`;
+        }${card.pushCode || card.openPullRequest ? "-" : ""}${
+          card.pushCode ? " GIT Push" : ""
+        }${card.pushCode && card.openPullRequest ? " &" : ""}${
+          card.openPullRequest ? " Open PR" : ""
+        }\n`;
       }
       return "";
     })
     .join("");
 };
 
-export function formatMyData(cards) {
-  console.log(cards);
-  let formattedData = "Yesterday:\n";
+export const formattedData = (learnerData, isGroup) => {
+  console.log(learnerData);
+  let formattedData = "";
 
-  const yesterdayCards = cards.filter(
-    (card) =>
-      new Date(card.dateAdded).toDateString() ===
-      new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
-  );
+  const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
-  const yesterdayProjectsCards = yesterdayCards.filter(
-    (card) => card.cardType === "project"
-  );
+  const processLearnerData = (data, hasLearnerName) => {
+    formattedData += hasLearnerName
+      ? `Learner: ${hasLearnerName}\nYesterday:\n`
+      : `Yesterday:\n`;
 
-  formattedData += formatSectionData(yesterdayProjectsCards);
+    const filterByDate = (cards, date) =>
+      cards.filter((card) => dateAddedStr(card) === date.toDateString());
 
-  formattedData += "\nReviews:\n";
+    const yesterdayCards = filterByDate(
+      data,
+      new Date(new Date().setDate(new Date().getDate() - 1))
+    );
 
-  const yesterdayReviewCards = yesterdayCards.filter(
-    (card) => card.cardType === "review"
-  );
+    const filterByCardType = (cards, cardType) =>
+      cards.filter((card) => card.cardType === cardType);
 
-  formattedData += formatSectionData(yesterdayReviewCards, "today");
+    const yesterdayProjectsCards = filterByCardType(yesterdayCards, "project");
 
-  formattedData += "\nMissed:\n";
+    formattedData += formatSectionData(yesterdayProjectsCards);
 
-  const missedCards = cards.filter(
-    (card) =>
-      !card.isChecked &&
-      dateAddedStr(card) ===
-        new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()
-  );
+    formattedData += "\nReviews:\n";
 
-  formattedData += formatSectionData(missedCards, "missed");
+    const yesterdayReviewCards = filterByCardType(yesterdayCards, "review");
 
-  formattedData += "\nToday:\n";
+    formattedData += formatSectionData(yesterdayReviewCards);
+    formattedData += "\nMissed:\n";
 
-  const todayCards = cards.filter(
-    (card) =>
-      new Date(card.dateAdded).toDateString() === new Date().toDateString()
-  );
+    const missedCards = filterByDate(
+      data.filter((card) => !card.isChecked),
+      new Date(new Date().setDate(new Date().getDate() - 1))
+    );
 
-  const todayProjectsCards = todayCards.filter(
-    (card) => card.cardType === "project"
-  );
+    formattedData += formatSectionData(missedCards, "missed");
 
-  formattedData += formatSectionData(todayProjectsCards, "today");
+    formattedData += `\nToday:\n`;
 
-  formattedData += "\nReviews:\n";
+    const todayCards = filterByDate(data, new Date());
 
-  const todayReviewCards = todayCards.filter(
-    (card) => card.cardType === "review"
-  );
+    const todayProjectsCards = filterByCardType(todayCards, "project");
 
-  formattedData += formatSectionData(todayReviewCards, "today");
+    formattedData += formatSectionData(todayProjectsCards, "today");
+
+    formattedData += "\nReviews:\n";
+
+    const todayReviewCards = filterByCardType(todayCards, "review");
+
+    formattedData += formatSectionData(todayReviewCards, "today");
+
+    formattedData += "\n";
+  };
+
+  if (isGroup) {
+    for (const learner in learnerData) {
+      const data = learnerData[learner];
+      const learnerName = learner;
+      processLearnerData(data, learnerName);
+    }
+  } else {
+    processLearnerData(learnerData);
+  }
 
   return formattedData.trim();
-}
+};
+
+export const formatWeeklyReport = (learnerData) => {
+  let formattedData = "";
+
+  const processLearnerData = (data, hasLearnerName) => {
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    for (let i = 6; i >= 0; i--) {
+      const currentDate = new Date();
+      const currentDay = daysOfWeek[i];
+      const startDate = new Date(currentDate);
+      startDate.setDate(
+        currentDate.getDate() - ((currentDate.getDay() + 7 - i) % 7)
+      );
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 1);
+
+      formattedData += hasLearnerName
+        ? `Learner: ${hasLearnerName}\n${currentDay} (${
+            startDate.toISOString().split("T")[0]
+          }):\n`
+        : `${currentDay} (${startDate.toISOString().split("T")[0]}):\n`;
+
+      const filterByDateRange = (cards, startDate, endDate) =>
+        cards.filter(
+          (card) =>
+            new Date(startDate) <= new Date(card.dateAdded) &&
+            new Date(card.dateAdded) < new Date(endDate)
+        );
+
+      const dayCards = filterByDateRange(data, startDate, endDate);
+
+      const filterByCardType = (cards, cardType) =>
+        cards.filter((card) => card.cardType === cardType);
+
+      const dayProjectsCards = filterByCardType(dayCards, "project");
+
+      formattedData += formatSectionData(dayProjectsCards, "day");
+
+      formattedData += "\nReviews:\n";
+
+      const dayReviewCards = filterByCardType(dayCards, "review");
+
+      formattedData += formatSectionData(dayReviewCards, "day");
+      formattedData += "\nMissed:\n";
+
+      const missedCards = dayCards.filter((card) => !card.isChecked);
+
+      formattedData += formatSectionData(missedCards, "missed");
+
+      formattedData += "\n";
+    }
+  };
+
+  for (const learner in learnerData) {
+    const data = learnerData[learner];
+    const learnerName = learner;
+    processLearnerData(data, learnerName);
+  }
+
+  return formattedData.trim();
+};
 
 export const copyToClipboard = (data) => {
   try {
