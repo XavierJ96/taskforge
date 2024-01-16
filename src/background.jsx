@@ -9,7 +9,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.action.setBadgeText({ text: message.count.toString() });
   } else if (message.action === "checkSignInStatus") {
     const authSub = onAuthStateChanged(auth, (user) => {
-      const userEmail = user ? user.email : null;
       sendResponse({ user });
     });
   } else if (message.action === "getCurrentUserUid") {
