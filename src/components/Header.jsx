@@ -16,7 +16,7 @@ function Header({
     <div className="header">
       <div className="my-auto">
         <img
-          src="/assets/icon128.png"
+          src="/icons/icon128.png"
           alt=""
           className="w-6 h-6 rounded-[50%]"
         />
