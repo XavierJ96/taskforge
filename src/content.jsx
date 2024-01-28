@@ -56,7 +56,11 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
         { action: "checkSignInStatus" },
         (response) => {
           user = response.user;
-          if (response.user.userEmail === null) {
+          if (
+            response.user !== null &&
+            response.user !== undefined &&
+            response.user.userEmail
+          ) {
             addButton.disabled = true;
             text.innerText = "Add to Planner";
             icon.classList.remove("fa-check");
