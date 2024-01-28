@@ -45,3 +45,8 @@
     opacity: 1;
   }
 }
+
+.rotate-animation {
+  transition: transform 1s ease; /* Adjust the duration and easing as needed */
+  transform: rotate(360deg);
+}

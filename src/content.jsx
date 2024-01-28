@@ -247,6 +247,7 @@ function checkLoad(child) {
   
   icon.className = "ml-3 fa-solid fa-rotate-right";
   span.appendChild(icon);
+  icon.style.cursor = "pointer"; 
   
   if (!columnNameElement.querySelector(".fa-rotate-right")) {
     columnNameElement.append(icon);
