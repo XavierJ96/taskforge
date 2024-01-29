@@ -21,8 +21,6 @@
     ·
     <a href="https://github.com/XavierJ96/taskforge/issues/new/choose">🚀Request Feature</a>
     .
-    <a href="https://sturdy-polyester-1cd.notion.site/TaskForge-User-Manual-1791c58ab6ef4d30a22c9a8875550b6d">📄User Manual</a>
-    .
     <a href="https://sturdy-polyester-1cd.notion.site/TaskForge-f40c291af8d14cd984909ecad45248f9">📝Release Notes</a>
   </p>
 </div>
