@@ -191,15 +191,14 @@ export const formatWeeklyReport = (learnerData) => {
       "Saturday",
     ];
 
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 0; i < 7; i++) {
       const currentDate = new Date();
-      const currentDay = daysOfWeek[i];
-      const startDate = new Date(currentDate);
-      startDate.setDate(
-        currentDate.getDate() - ((currentDate.getDay() + 7 - i) % 7)
-      );
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 1);
+      currentDate.setDate(currentDate.getDate() - i);
+      const currentDay = daysOfWeek[currentDate.getDay()];
+
+      let startDate = new Date(currentDate);
+      let endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
 
       formattedData += hasLearnerName
         ? `Learner: ${hasLearnerName}\n${currentDay} (${
@@ -210,8 +209,8 @@ export const formatWeeklyReport = (learnerData) => {
       const filterByDateRange = (cards, startDate, endDate) =>
         cards.filter(
           (card) =>
-            new Date(startDate) <= new Date(card.dateAdded) &&
-            new Date(card.dateAdded) < new Date(endDate)
+            new Date(card.dateAdded).toISOString().split("T")[0] ===
+            startDate.toISOString().split("T")[0]
         );
 
       const dayCards = filterByDateRange(data, startDate, endDate);
