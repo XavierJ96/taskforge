@@ -56,7 +56,11 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
         { action: "checkSignInStatus" },
         (response) => {
           user = response.user;
-          if (response.user.userEmail === null) {
+          if (
+            response.user !== null &&
+            response.user !== undefined &&
+            response.user.userEmail
+          ) {
             addButton.disabled = true;
             text.innerText = "Add to Planner";
             icon.classList.remove("fa-check");
@@ -207,29 +211,56 @@ async function processCard(child, index) {
       const cards = child.querySelectorAll("div.MuiPaper-root.MuiCard-root");
 
       for (const card of cards) {
-        const cardTitleElement = card.querySelector(
-          "div.MuiCardContent-root > h2"
-        );
-        const cardAssigneeElement = card.querySelector(
-          "div.MuiCardContent-root > p"
-        );
+        if (!card.querySelector("#addBtn")) {
+          const cardTitleElement = card.querySelector(
+            "div.MuiCardContent-root > h2"
+          );
+          const cardAssigneeElement = card.querySelector(
+            "div.MuiCardContent-root > p"
+          );
 
-        const gitLink = getLink(card);
+          const gitLink = getLink(card);
 
-        const cardTitle = cardTitleElement.textContent.trim();
-        const cardAssignee = cardAssigneeElement.textContent.trim();
+          const cardTitle = cardTitleElement.textContent.trim();
+          const cardAssignee = cardAssigneeElement.textContent.trim();
 
-        const cardType = getCardType(card);
+          const cardType = getCardType(card);
 
-        if (gitLink !== null && gitLink !== undefined) {
-          addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink);
-        } else {
-          addButtonToCard(card, cardTitle, cardType, cardAssignee);
+          if (gitLink !== null && gitLink !== undefined) {
+            addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink);
+          } else {
+            addButtonToCard(card, cardTitle, cardType, cardAssignee);
+          }
         }
       }
     }
   } else {
     console.warn(`Column name not found for child ${index + 1}`);
+  }
+}
+
+function checkLoad(child) {
+  const columnNameElement = child.querySelector("div > h5");
+
+  const span = document.createElement("span");
+  const icon = document.createElement("i");
+  
+  icon.className = "ml-3 fa-solid fa-rotate-right";
+  span.appendChild(icon);
+  icon.style.cursor = "pointer"; 
+  
+  if (!columnNameElement.querySelector(".fa-rotate-right")) {
+    columnNameElement.append(icon);
+    icon.addEventListener("click", () => {
+      console.log("clicked");
+      getCardData();
+  
+      icon.classList.add("rotate-animation");
+  
+      setTimeout(() => {
+        icon.classList.remove("rotate-animation");
+      }, 1000);
+    });
   }
 }
 
@@ -243,6 +274,7 @@ async function getCardData() {
 
     Array.from(children).forEach(async (child, index) => {
       await processCard(child, index);
+      checkLoad(child);
     });
   } else {
     return null;
