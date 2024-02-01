@@ -54,33 +54,38 @@ export const fetchLearnerData = async (
   const tasksByLearner = {};
   const unsub = onSnapshot(learnerRef, async (snapshot) => {
     snapshot.forEach(async (doc) => {
-      if (doc.data().techLead === userEmail) {
+      const techLeadEmail = doc.data().techLead;
+      const techCoachEmail = doc.data().techCoach;
+
+      if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
-      if (doc.data().techCoach === userEmail) {
+      if (techCoachEmail === userEmail) {
         setIsTechCoach(true);
       }
 
-      const learnersMap = doc.data().learners;
+      if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
+        const learnersMap = doc.data().learners;
 
-      if (Array.isArray(learnersMap) && learnersMap.length > 0) {
-        const taskQuery = query(
-          collection(db, "forgedTasks"),
-          where("author.name", "in", learnersMap)
-        );
+        if (Array.isArray(learnersMap) && learnersMap.length > 0) {
+          const taskQuery = query(
+            collection(db, "forgedTasks"),
+            where("author.name", "in", learnersMap)
+          );
 
-        const taskSnapshot = await getDocs(taskQuery);
+          const taskSnapshot = await getDocs(taskQuery);
 
-        taskSnapshot.forEach((taskDoc) => {
-          const learnerName = taskDoc.data().author.name;
+          taskSnapshot.forEach((taskDoc) => {
+            const learnerName = taskDoc.data().author.name;
 
-          if (!tasksByLearner[learnerName]) {
-            tasksByLearner[learnerName] = [];
-          }
-          tasksByLearner[learnerName].push({
-            ...taskDoc.data(),
+            if (!tasksByLearner[learnerName]) {
+              tasksByLearner[learnerName] = [];
+            }
+            tasksByLearner[learnerName].push({
+              ...taskDoc.data(),
+            });
           });
-        });
+        }
       }
     });
 
@@ -191,15 +196,14 @@ export const formatWeeklyReport = (learnerData) => {
       "Saturday",
     ];
 
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 0; i < 7; i++) {
       const currentDate = new Date();
-      const currentDay = daysOfWeek[i];
-      const startDate = new Date(currentDate);
-      startDate.setDate(
-        currentDate.getDate() - ((currentDate.getDay() + 7 - i) % 7)
-      );
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 1);
+      currentDate.setDate(currentDate.getDate() - i);
+      const currentDay = daysOfWeek[currentDate.getDay()];
+
+      let startDate = new Date(currentDate);
+      let endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
 
       formattedData += hasLearnerName
         ? `Learner: ${hasLearnerName}\n${currentDay} (${
@@ -210,8 +214,8 @@ export const formatWeeklyReport = (learnerData) => {
       const filterByDateRange = (cards, startDate, endDate) =>
         cards.filter(
           (card) =>
-            new Date(startDate) <= new Date(card.dateAdded) &&
-            new Date(card.dateAdded) < new Date(endDate)
+            new Date(card.dateAdded).toISOString().split("T")[0] ===
+            startDate.toISOString().split("T")[0]
         );
 
       const dayCards = filterByDateRange(data, startDate, endDate);
