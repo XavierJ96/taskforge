@@ -8,6 +8,7 @@ import TaskCard from "../components/TaskComponent";
 import ToggleSection from "../components/ToggleSection";
 import TaskList from "../components/TaskList";
 import * as taskUtils from "../utils/taskUtils";
+import AddTasks from "../components/AddTasks";
 
 function Home({ userEmail }) {
   const [taskData, setTaskData] = useState([]);
@@ -99,6 +100,10 @@ function Home({ userEmail }) {
       } else if (section === "yesterday") {
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
+        if (today.getDay() === 1) {
+          yesterday.setDate(yesterday.getDate() - 2);
+        }
+
         return taskDate.toDateString() === yesterday.toDateString();
       }
 
@@ -182,6 +187,7 @@ function Home({ userEmail }) {
           isVisible={yesterdayVisible}
         />
       </div>
+      <AddTasks />
     </div>
   );
 }
