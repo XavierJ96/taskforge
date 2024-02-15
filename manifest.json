@@ -1,33 +1,21 @@
 {
   "manifest_version": 3,
   "name": "TaskForge",
-  "version": "1.1.030",
-  "action": {
-    "default_popup": "index.html"
-  },
-  "permissions": ["storage", "tabs"],
+  "version": "1.1.031",
+  "action": { "default_popup": "index.html" },
+  "permissions": ["storage"],
   "icons": {
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "content_scripts": [
     {
-      "js": [
-        "assets/content-script-loader.content.jsx.js.js",
-        "assets/content-script-loader.font-awesome.js.js"
-      ],
+      "js": ["./src/content.jsx", "./src/utils/font-awesome.js"],
       "matches": ["https://tilde-front-dot-umuzi-prod.nw.r.appspot.com/*"]
     }
   ],
   "background": {
-    "service_worker": "service-worker-loader.js",
+    "service_worker": "src/background.jsx",
     "type": "module"
-  },
-  "web_accessible_resources": [
-    {
-      "matches": ["<all_urls>"],
-      "resources": ["**/*", "*"],
-      "use_dynamic_url": true
-    }
-  ]
+  }
 }
