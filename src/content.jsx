@@ -1,9 +1,70 @@
 "use strict";
 
+import { onAuthStateChanged } from "firebase/auth";
 import "./styles/index.css";
 import "./styles/injectBtnStyles.css";
 import { db } from "./utils/firebase_config";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+
+let taskArr;
+
+chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
+  let uid = response.user.uid;
+  const taskRef = query(
+    collection(db, "forgedTasks"),
+    where("author.id", "==", uid)
+  );
+  const unsub = onSnapshot(taskRef, (snapshot) => {
+    taskArr = snapshot.docs;
+    updateButtonState();
+  });
+});
+
+function updateButtonState() {
+  const cards = document.querySelectorAll("div.MuiPaper-root.MuiCard-root");
+  cards.forEach((card) => {
+    const cardTitleElement = card.querySelector("div.MuiCardContent-root > h2");
+    const cardAssigneeElement = card.querySelector(
+      "div.MuiCardContent-root > p"
+    );
+    const cardAssignee = cardAssigneeElement.textContent.trim();
+    const cardTitle = cardTitleElement.textContent.trim();
+
+    const addButton = card.querySelector("#addBtn");
+    if (addButton !== null) {
+      const isTaskAdded = isTaskAlreadyAdded(cardTitle, cardAssignee);
+      const pushBtn = card.querySelector("#pushBtn");
+      const openBtn = card.querySelector("#requestBtn");
+      const icon = addButton.querySelector("i");
+      const text = addButton.querySelector("span:last-child");
+
+      if (isTaskAdded) {
+        toggleIconAndText(icon, text, true);
+        addButton.disabled = true;
+        if (pushBtn) pushBtn.disabled = true;
+        if (openBtn) openBtn.disabled = true;
+      } else {
+        toggleIconAndText(icon, text, false);
+        addButton.disabled = false;
+        if (pushBtn) pushBtn.disabled = false;
+        if (pushBtn) pushBtn.style.backgroundColor = "";
+        if (openBtn) openBtn.disabled = false;
+        if (openBtn) openBtn.style.backgroundColor = "";
+      }
+    }
+  });
+}
+
+function isTaskAlreadyAdded(cardTitle, cardAssignee) {
+  return taskArr.some((doc) => {
+    const docTitle = doc.data().cardTitle;
+    const docAssignee = doc.data().cardAssignee;
+    return (
+      docTitle === cardTitle &&
+      (docAssignee === cardAssignee || doc.data().cardType !== "review")
+    );
+  });
+}
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const addButton = createAddButton();
@@ -12,94 +73,81 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   const icon = addButton.querySelector("i");
   const text = addButton.querySelector("span:last-child");
   let user;
-  const taskRef = collection(db, "forgedTasks");
 
-  chrome.runtime.sendMessage({ action: "getCurrentUserUid" }, (response) => {
-    const currentUserUid = response.uid;
-    const unsub = onSnapshot(taskRef, (snapshot) => {
-      let isTaskAdded = false;
-      let gitPushed = false;
-      let openPr = false;
+  chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
+    console.log("checkSignInStatus ran");
+    const currentUserUid = response.user.uid;
+    user = response.user;
+    let isTaskAdded = false;
+    let gitPushed = false;
+    let openPr = false;
 
-      snapshot.docs.forEach((doc) => {
-        let docTitle = doc.data().cardTitle;
-        let docAssignee = doc.data().cardAssignee;
+    taskArr.forEach((doc) => {
+      let docTitle = doc.data().cardTitle;
+      let docAssignee = doc.data().cardAssignee;
+
+      if (
+        doc.data().author?.id === currentUserUid &&
+        docTitle === cardTitle &&
+        (docAssignee === cardAssignee || doc.data().cardType !== "review")
+      ) {
+        let docDate = new Date(doc.data().dateAdded);
+        let today = new Date();
+
+        if (docDate.toDateString() === today.toDateString()) {
+          isTaskAdded = true;
+        }
 
         if (
-          doc.data().author?.id === currentUserUid &&
-          docTitle === cardTitle &&
-          (docAssignee === cardAssignee || doc.data().cardType !== "review")
+          docDate.toDateString() === today.toDateString() &&
+          doc.data().pushCode
         ) {
-          let docDate = new Date(doc.data().dateAdded);
-          let today = new Date();
-
-          if (docDate.toDateString() === today.toDateString()) {
-            isTaskAdded = true;
-          }
-
-          if (
-            docDate.toDateString() === today.toDateString() &&
-            doc.data().pushCode
-          ) {
-            gitPushed = true;
-          }
-          if (
-            docDate.toDateString() === today.toDateString() &&
-            doc.data().openPullRequest
-          ) {
-            openPr = true;
-          }
+          gitPushed = true;
         }
-      });
-
-      chrome.runtime.sendMessage(
-        { action: "checkSignInStatus" },
-        (response) => {
-          user = response.user;
-          if (
-            response.user !== null &&
-            response.user !== undefined &&
-            response.user.userEmail
-          ) {
-            addButton.disabled = true;
-            text.innerText = "Add to Planner";
-            icon.classList.remove("fa-check");
-            icon.classList.add("fa-plus");
-            return;
-          }
+        if (
+          docDate.toDateString() === today.toDateString() &&
+          doc.data().openPullRequest
+        ) {
+          openPr = true;
         }
-      );
-
-      if (isTaskAdded) {
-        toggleIconAndText(icon, text, true);
-        addButton.disabled = true;
-        pushBtn.disabled = true;
-        openBtn.disabled = true;
-        text.innerText = "Added";
-        icon.classList.remove("fa-plus");
-        icon.classList.add("fa-check");
-        gitPushed
-          ? (pushBtn.style.backgroundColor = "lightgreen")
-          : (pushBtn.style.backgroundColor = "");
-        openPr
-          ? (openBtn.style.backgroundColor = "lightgreen")
-          : (openBtn.style.backgroundColor = "");
-      } else {
-        toggleIconAndText(icon, text, false);
-        gitPushed
-          ? (pushBtn.style.backgroundColor = "lightgreen")
-          : (pushBtn.style.backgroundColor = "");
-        openPr
-          ? (openBtn.style.backgroundColor = "lightgreen")
-          : (openBtn.style.backgroundColor = "");
-        addButton.disabled = false;
-        pushBtn.disabled = false;
-        openBtn.disabled = false;
-        text.innerText = "Add to Planner";
-        icon.classList.remove("fa-check");
-        icon.classList.add("fa-plus");
       }
     });
+
+    if (
+      response.user !== null &&
+      response.user !== undefined &&
+      response.user.userEmail
+    ) {
+      addButton.disabled = true;
+      text.innerText = "Add to Planner";
+      icon.classList.remove("fa-check");
+      icon.classList.add("fa-plus");
+      return;
+    }
+
+    if (isTaskAdded) {
+      toggleIconAndText(icon, text, true);
+      addButton.disabled = true;
+      pushBtn.disabled = true;
+      openBtn.disabled = true;
+      gitPushed
+        ? (pushBtn.style.backgroundColor = "lightgreen")
+        : (pushBtn.style.backgroundColor = "");
+      openPr
+        ? (openBtn.style.backgroundColor = "lightgreen")
+        : (openBtn.style.backgroundColor = "");
+    } else {
+      toggleIconAndText(icon, text, false);
+      gitPushed
+        ? (pushBtn.style.backgroundColor = "lightgreen")
+        : (pushBtn.style.backgroundColor = "");
+      openPr
+        ? (openBtn.style.backgroundColor = "lightgreen")
+        : (openBtn.style.backgroundColor = "");
+      addButton.disabled = false;
+      pushBtn.disabled = false;
+      openBtn.disabled = false;
+    }
   });
 
   addButton.addEventListener("click", () => {
@@ -201,7 +249,35 @@ function createActionBtn(id, iconClass) {
   return button;
 }
 
-async function processCard(child, index) {
+function getLink(card) {
+  const linkElement = card.querySelector(
+    "div.MuiCardContent-root > div.jss364 > a"
+  );
+
+  if (linkElement) {
+    return linkElement.getAttribute("href");
+  }
+
+  return null;
+}
+function getCardType(cardElement) {
+  const backgroundColor = window
+    .getComputedStyle(cardElement)
+    .getPropertyValue("background-color");
+
+  if (
+    backgroundColor === "rgb(187, 222, 251)" ||
+    backgroundColor === "rgb(238, 238, 238)"
+  ) {
+    return "project";
+  } else if (backgroundColor === "rgb(255, 224, 178)") {
+    return "review";
+  } else {
+    return "unknown";
+  }
+}
+
+function processCard(child, index) {
   const columnNameElement = child.querySelector("div > h5");
 
   if (columnNameElement) {
@@ -225,7 +301,7 @@ async function processCard(child, index) {
           const cardAssignee = cardAssigneeElement.textContent.trim();
 
           const cardType = getCardType(card);
-
+          console.log("called processCard");
           if (gitLink !== null && gitLink !== undefined) {
             addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink);
           } else {
@@ -244,19 +320,18 @@ function checkLoad(child) {
 
   const span = document.createElement("span");
   const icon = document.createElement("i");
-  
+
   icon.className = "ml-3 fa-solid fa-rotate-right";
   span.appendChild(icon);
-  icon.style.cursor = "pointer"; 
-  
+  icon.style.cursor = "pointer";
+
   if (!columnNameElement.querySelector(".fa-rotate-right")) {
     columnNameElement.append(icon);
     icon.addEventListener("click", () => {
-      console.log("clicked");
       getCardData();
-  
+
       icon.classList.add("rotate-animation");
-  
+
       setTimeout(() => {
         icon.classList.remove("rotate-animation");
       }, 1000);
@@ -264,7 +339,7 @@ function checkLoad(child) {
   }
 }
 
-async function getCardData() {
+function getCardData() {
   const parentElement = document.querySelector(
     "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
   );
@@ -272,41 +347,12 @@ async function getCardData() {
   if (parentElement) {
     const children = parentElement.children;
 
-    Array.from(children).forEach(async (child, index) => {
-      await processCard(child, index);
+    Array.from(children).forEach((child, index) => {
+      processCard(child, index);
       checkLoad(child);
     });
   } else {
     return null;
-  }
-}
-
-function getLink(card) {
-  const linkElement = card.querySelector(
-    "div.MuiCardContent-root > div.jss364 > a"
-  );
-
-  if (linkElement) {
-    return linkElement.getAttribute("href");
-  }
-
-  return null;
-}
-
-function getCardType(cardElement) {
-  const backgroundColor = window
-    .getComputedStyle(cardElement)
-    .getPropertyValue("background-color");
-
-  if (
-    backgroundColor === "rgb(187, 222, 251)" ||
-    backgroundColor === "rgb(238, 238, 238)"
-  ) {
-    return "project";
-  } else if (backgroundColor === "rgb(255, 224, 178)") {
-    return "review";
-  } else {
-    return "unknown";
   }
 }
 
