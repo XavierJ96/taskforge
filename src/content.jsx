@@ -75,7 +75,6 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
   let user;
 
   chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
-    console.log("checkSignInStatus ran");
     const currentUserUid = response.user.uid;
     user = response.user;
     let isTaskAdded = false;
@@ -301,7 +300,6 @@ function processCard(child, index) {
           const cardAssignee = cardAssigneeElement.textContent.trim();
 
           const cardType = getCardType(card);
-          console.log("called processCard");
           if (gitLink !== null && gitLink !== undefined) {
             addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink);
           } else {
