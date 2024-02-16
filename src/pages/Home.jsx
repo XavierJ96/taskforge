@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase_config";
-import { collection } from "firebase/firestore";
+import { collection, query, where, orderBy } from "firebase/firestore";
 import "../styles/Home.css";
 import Header from "../components/Header";
 import Stats from "../components/Stats";
@@ -25,7 +25,25 @@ function Home({ userEmail }) {
     });
   }, [todayVisible, yesterdayVisible]);
 
-  const taskRef = collection(db, "forgedTasks");
+  const todayDate = new Date();
+  const yesterdayDate = new Date(todayDate);
+  const dayOfWeek = yesterdayDate.getDay();
+
+  if (dayOfWeek === 0) {
+    yesterdayDate.setDate(todayDate.getDate() - 2);
+  } else {
+    yesterdayDate.setDate(todayDate.getDate() - 1);
+  }
+
+  yesterdayDate.setHours(0, 0, 0, 0);
+
+  const taskRef = query(
+    collection(db, "forgedTasks"),
+    where("author.name", "==", userEmail),
+    where("dateAdded", ">", yesterdayDate.toISOString()),
+    orderBy("dateAdded", "desc")
+  );
+
   const learnerRef = collection(db, "learnerData");
 
   useEffect(() => {
