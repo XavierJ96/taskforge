@@ -1,19 +1,32 @@
 "use strict";
 
-import { onAuthStateChanged } from "firebase/auth";
 import "./styles/index.css";
 import "./styles/injectBtnStyles.css";
 import { db } from "./utils/firebase_config";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
 
 let taskArr;
 
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
+  const today = new Date();
+  const yesterday = new Date(today);
+  const dayOfWeek = yesterday.getDay();
+  
+  if (dayOfWeek === 0) {
+    yesterday.setDate(today.getDate() - 2);
+  } else {
+    yesterday.setDate(today.getDate() - 1);
+  }
+  
+  yesterday.setHours(0, 0, 0, 0);
   const taskRef = query(
     collection(db, "forgedTasks"),
-    where("author.id", "==", uid)
+    where("author.id", "==", uid),
+    where("dateAdded", ">", yesterday.toISOString()),
+    orderBy("dateAdded", "desc")
   );
+
   const unsub = onSnapshot(taskRef, (snapshot) => {
     taskArr = snapshot.docs;
     updateButtonState();
@@ -272,7 +285,7 @@ function getCardType(cardElement) {
   } else if (backgroundColor === "rgb(255, 224, 178)") {
     return "review";
   } else {
-    return "unknown";
+    return "unktodayn";
   }
 }
 
@@ -339,7 +352,7 @@ function checkLoad(child) {
 
 function getCardData() {
   const parentElement = document.querySelector(
-    "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
+    "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-todayrap"
   );
 
   if (parentElement) {
