@@ -12,21 +12,22 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   const today = new Date();
   const yesterday = new Date(today);
   const dayOfWeek = yesterday.getDay();
-  
+
   if (dayOfWeek === 0) {
     yesterday.setDate(today.getDate() - 2);
   } else {
     yesterday.setDate(today.getDate() - 1);
   }
-  
+
   yesterday.setHours(0, 0, 0, 0);
+
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.id", "==", uid),
     where("dateAdded", ">", yesterday.toISOString()),
     orderBy("dateAdded", "desc")
   );
-
+  
   const unsub = onSnapshot(taskRef, (snapshot) => {
     taskArr = snapshot.docs;
     updateButtonState();
@@ -285,7 +286,7 @@ function getCardType(cardElement) {
   } else if (backgroundColor === "rgb(255, 224, 178)") {
     return "review";
   } else {
-    return "unktodayn";
+    return "unknown";
   }
 }
 
@@ -352,7 +353,7 @@ function checkLoad(child) {
 
 function getCardData() {
   const parentElement = document.querySelector(
-    "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-todayrap"
+    "#root > div > main > div.jss12 > div.MuiGrid-root.MuiGrid-container.MuiGrid-wrap-xs-nowrap"
   );
 
   if (parentElement) {
