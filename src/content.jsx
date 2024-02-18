@@ -9,7 +9,6 @@ import {
   query,
   where,
   orderBy,
-  getDocs,
 } from "firebase/firestore";
 
 let taskArr;
@@ -27,7 +26,7 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   }
 
   yesterday.setHours(0, 0, 0, 0);
-  
+
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.id", "==", uid),
@@ -43,8 +42,8 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
     });
     updateButtonState();
   });
-  
-  () => unsub()
+
+  () => unsub();
 });
 
 function updateButtonState() {
@@ -299,6 +298,7 @@ function getCardType(cardElement) {
   } else if (backgroundColor === "rgb(255, 224, 178)") {
     return "review";
   } else {
+    return "unknown";
     return "unknown";
   }
 }

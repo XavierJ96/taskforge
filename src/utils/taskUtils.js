@@ -320,7 +320,7 @@ export const deleteAllTasks = (taskData, taskRef, setTaskData) => {
         new Date(task.dateAdded).toDateString() === today.toDateString() ||
         new Date(task.dateAdded).toDateString() === yesterday.toDateString()
       ) {
-        await deleteDoc(doc(taskRef, task.id));
+        await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
       }
     });
 
