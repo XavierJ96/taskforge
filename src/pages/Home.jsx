@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "../utils/firebase_config";
 import { collection, query, where, orderBy } from "firebase/firestore";
 import "../styles/Home.css";
@@ -17,6 +17,8 @@ function Home({ userEmail }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isTechLead, setIsTechLead] = useState(false);
   const [isTechCoach, setIsTechCoach] = useState(false);
+
+  const effectRan = useRef(false);
 
   useEffect(() => {
     chrome.storage.local.get(["todayVisible", "yesterdayVisible"], (result) => {
@@ -93,6 +95,24 @@ function Home({ userEmail }) {
     today,
     yesterday
   );
+
+  useEffect(() => {
+    if (effectRan.current === false) {
+      if (taskData.length > 0) {
+        chrome.runtime.sendMessage({
+          action: "postTasks",
+          userEmail: userEmail,
+          tasks: taskUtils.formattedData(taskData, false),
+          date: today.toISOString().substring(0, 10),
+          missed: taskData.filter(
+            (task) =>
+              new Date(task.dateAdded).toDateString() ===
+                yesterday.toDateString() && !task.isChecked
+          ).length,
+        });
+      }
+    }
+  }, [taskData]);
 
   const generateTasks = (section) => {
     const filteredTasks = taskData.filter((task) => {

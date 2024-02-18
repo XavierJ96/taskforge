@@ -3,6 +3,15 @@
 import { db, auth } from "./utils/firebase_config";
 import { addDoc, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { resetTaskPostedState, updateOrCreateRecord } from "./utils/airtable";
+
+resetTaskPostedState();
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "postTasks") {
+    updateOrCreateRecord(message);
+  }
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "setNotificationCount") {
