@@ -44,7 +44,10 @@ function Home({ userEmail }) {
     orderBy("dateAdded", "desc")
   );
 
-  const learnerRef = collection(db, "learnerData");
+  const learnerRef = query(
+    collection(db, "learnerData"),
+    where("techCoach", "==", userEmail) || where("techLead", "==", userEmail)
+  );
 
   useEffect(() => {
     taskUtils.fetchTasks(taskRef, userEmail, setTaskData);
@@ -59,22 +62,6 @@ function Home({ userEmail }) {
       setIsTechCoach
     );
   }, []);
-
-  useEffect(() => {
-    let today = new Date();
-    let yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    let formattedToday = today.toISOString().split("T")[0];
-    let formattedYesterday = yesterday.toISOString().split("T")[0];
-
-    let filteredTasks = taskData.filter((task) => {
-      let taskDate = task.dateAdded.split("T")[0];
-      return taskDate === formattedToday || taskDate === formattedYesterday;
-    });
-
-    taskUtils.setNotificationCount(filteredTasks.length);
-  }, [taskData]);
 
   const logout = async () => {
     taskUtils.setNotificationCount(0);

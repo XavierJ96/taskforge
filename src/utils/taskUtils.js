@@ -10,6 +10,8 @@ import {
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase_config";
 
+const todayDate = new Date();
+
 export const getCountForCardType = (cardType, taskData, today, yesterday) => {
   return taskData.filter(
     (task) =>
@@ -52,8 +54,12 @@ export const fetchLearnerData = async (
   setIsTechCoach
 ) => {
   const tasksByLearner = {};
-  const unsub = onSnapshot(learnerRef, async (snapshot) => {
-    snapshot.forEach(async (doc) => {
+  let taskQuery;
+
+  try {
+    const snapshot = await getDocs(learnerRef);
+
+    for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
       const techCoachEmail = doc.data().techCoach;
 
@@ -66,13 +72,24 @@ export const fetchLearnerData = async (
 
       if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
         const learnersMap = doc.data().learners;
+        const nineDaysAgo = new Date(todayDate);
+        nineDaysAgo.setDate(nineDaysAgo.getDate() - 9);
+
+        const nineDaysAgoTimestamp = nineDaysAgo.toISOString();
+
+        techCoachEmail !== userEmail
+          ? (taskQuery = query(
+              collection(db, "forgedTasks"),
+              where("author.name", "in", learnersMap),
+              where("dateAdded", ">", yesterdayDate.toISOString())
+            ))
+          : (taskQuery = query(
+              collection(db, "forgedTasks"),
+              where("author.name", "in", learnersMap),
+              where("dateAdded", ">", nineDaysAgoTimestamp)
+            ));
 
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
-          const taskQuery = query(
-            collection(db, "forgedTasks"),
-            where("author.name", "in", learnersMap)
-          );
-
           const taskSnapshot = await getDocs(taskQuery);
 
           taskSnapshot.forEach((taskDoc) => {
@@ -87,12 +104,12 @@ export const fetchLearnerData = async (
           });
         }
       }
-    });
+    }
 
     setLearnerData(tasksByLearner);
-  });
-
-  return () => unsub();
+  } catch (error) {
+    console.error("Error fetching learner data:", error);
+  }
 };
 
 const formatSectionData = (data, option) => {
@@ -113,7 +130,6 @@ const formatSectionData = (data, option) => {
 };
 
 export const formattedData = (learnerData, isGroup) => {
-  console.log(learnerData);
   let formattedData = "";
 
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
