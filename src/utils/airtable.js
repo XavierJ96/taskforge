@@ -45,7 +45,6 @@ export function updateOrCreateRecord(data) {
               console.error("Error updating record:", err);
               return;
             }
-            console.log("Record updated:", updatedRecords[0].id);
             chrome.storage.local.set({ taskPosted: "true" }, function () {});
           }
         );

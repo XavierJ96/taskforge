@@ -19,8 +19,8 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   const yesterday = new Date(today);
   const dayOfWeek = yesterday.getDay();
 
-  if (dayOfWeek === 0) {
-    yesterday.setDate(today.getDate() - 2);
+  if (dayOfWeek - 1 === 0) {
+    yesterday.setDate(today.getDate() - 3);
   } else {
     yesterday.setDate(today.getDate() - 1);
   }

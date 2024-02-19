@@ -17,7 +17,7 @@ export const getCountForCardType = (cardType, taskData, today, yesterday) => {
     (task) =>
       task.cardType === cardType &&
       (new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() === yesterday.toDateString())
+        new Date(task.dateAdded).toDateString() >= yesterday.toDateString())
   ).length;
 };
 

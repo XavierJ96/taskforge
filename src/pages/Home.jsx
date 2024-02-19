@@ -31,18 +31,17 @@ function Home({ userEmail }) {
   const yesterdayDate = new Date(todayDate);
   const dayOfWeek = yesterdayDate.getDay();
 
-  if (dayOfWeek === 0) {
-    yesterdayDate.setDate(todayDate.getDate() - 2);
+  if (dayOfWeek - 1 === 0) {
+    yesterdayDate.setDate(todayDate.getDate() - 3);
   } else {
     yesterdayDate.setDate(todayDate.getDate() - 1);
   }
 
   yesterdayDate.setHours(0, 0, 0, 0);
-
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
-    where("dateAdded", ">", yesterdayDate.toISOString()),
+    where("dateAdded", ">=", yesterdayDate.toISOString()),
     orderBy("dateAdded", "desc")
   );
 
@@ -78,22 +77,18 @@ function Home({ userEmail }) {
     taskUtils.deleteAllTasks(taskData, taskRef, setTaskData);
   };
 
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
   const reviewTasksCount = taskUtils.getCountForCardType(
     "review",
     taskData,
-    today,
-    yesterday
+    todayDate,
+    yesterdayDate
   );
 
   const projectTasksCount = taskUtils.getCountForCardType(
     "project",
     taskData,
-    today,
-    yesterday
+    todayDate,
+    yesterdayDate
   );
 
   useEffect(() => {
@@ -103,11 +98,11 @@ function Home({ userEmail }) {
           action: "postTasks",
           userEmail: userEmail,
           tasks: taskUtils.formattedData(taskData, false),
-          date: today.toISOString().substring(0, 10),
+          date: todayDate.toISOString().substring(0, 10),
           missed: taskData.filter(
             (task) =>
-              new Date(task.dateAdded).toDateString() ===
-                yesterday.toDateString() && !task.isChecked
+              new Date(task.dateAdded).toDateString() !==
+                todayDate.toDateString() && !task.isChecked
           ).length,
         });
       }
@@ -122,11 +117,8 @@ function Home({ userEmail }) {
       if (section === "today") {
         return taskDate.toDateString() === today.toDateString();
       } else if (section === "yesterday") {
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        return taskDate.toDateString() === yesterday.toDateString();
+        return taskDate.toDateString() !== today.toDateString();
       }
-
       return false;
     });
 
