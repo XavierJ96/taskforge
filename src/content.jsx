@@ -17,16 +17,16 @@ const today = new Date();
 const yesterday = new Date(today);
 const dayOfWeek = yesterday.getDay();
 
+if (dayOfWeek - 1 === 0) {
+  yesterday.setDate(today.getDate() - 3);
+} else {
+  yesterday.setDate(today.getDate() - 1);
+}
+
+yesterday.setHours(0, 0, 0, 0);
+
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
-
-  if (dayOfWeek - 1 === 0) {
-    yesterday.setDate(today.getDate() - 3);
-  } else {
-    yesterday.setDate(today.getDate() - 1);
-  }
-
-  yesterday.setHours(0, 0, 0, 0);
 
   const taskRef = query(
     collection(db, "forgedTasks"),
@@ -59,7 +59,8 @@ function updateButtonState() {
 
     const addButton = card.querySelector("#addBtn");
     if (addButton !== null) {
-      const isTaskAdded = isTaskAlreadyAdded(cardTitle, cardAssignee);
+      const isTaskAdded = isTaskAlreadyAdded(cardAssignee, cardTitle);
+
       const pushBtn = card.querySelector("#pushBtn");
       const openBtn = card.querySelector("#requestBtn");
       const icon = addButton.querySelector("i");
@@ -82,16 +83,26 @@ function updateButtonState() {
   });
 }
 
-function isTaskAlreadyAdded(cardTitle, cardAssignee) {
-  return taskArr.some((doc) => {
-    const docTitle = doc.data().cardTitle;
-    const docAssignee = doc.data().cardAssignee;
-    return (
+function isTaskAlreadyAdded(cardAssignee, cardTitle) {
+  let isTaskAdded;
+
+  taskArr.forEach((doc) => {
+    let docTitle = doc.data().cardTitle;
+    let docAssignee = doc.data().cardAssignee;
+
+    if (
       docTitle === cardTitle &&
-      docAssignee === cardAssignee &&
-      doc.data().dateAdded.toDateString() > yesterday.toDateString()
-    );
+      (docAssignee === cardAssignee || doc.data().cardType !== "review")
+    ) {
+      let docDate = new Date(doc.data().dateAdded);
+
+      if (docDate.toDateString() === today.toDateString()) {
+        isTaskAdded = true;
+      }
+    }
   });
+
+  return isTaskAdded;
 }
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
