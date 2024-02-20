@@ -13,11 +13,12 @@ import {
 
 let taskArr;
 
+const today = new Date();
+const yesterday = new Date(today);
+const dayOfWeek = yesterday.getDay();
+
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
-  const today = new Date();
-  const yesterday = new Date(today);
-  const dayOfWeek = yesterday.getDay();
 
   if (dayOfWeek - 1 === 0) {
     yesterday.setDate(today.getDate() - 3);
@@ -87,7 +88,8 @@ function isTaskAlreadyAdded(cardTitle, cardAssignee) {
     const docAssignee = doc.data().cardAssignee;
     return (
       docTitle === cardTitle &&
-      (docAssignee === cardAssignee || doc.data().cardType !== "review")
+      docAssignee === cardAssignee &&
+      doc.data().dateAdded.toDateString() > yesterday.toDateString()
     );
   });
 }

@@ -45,10 +45,7 @@ function Home({ userEmail }) {
     orderBy("dateAdded", "desc")
   );
 
-  const learnerRef = query(
-    collection(db, "learnerData"),
-    where("techCoach", "==", userEmail) || where("techLead", "==", userEmail)
-  );
+  const learnerRef = query(collection(db, "learnerData"));
 
   useEffect(() => {
     taskUtils.fetchTasks(taskRef, userEmail, setTaskData);

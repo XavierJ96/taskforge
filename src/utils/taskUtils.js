@@ -66,6 +66,7 @@ export const fetchLearnerData = async (
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
+
       if (techCoachEmail === userEmail) {
         setIsTechCoach(true);
       }
