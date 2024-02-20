@@ -57,7 +57,8 @@ function Home({ userEmail }) {
       userEmail,
       setIsTechLead,
       setLearnerData,
-      setIsTechCoach
+      setIsTechCoach,
+      yesterdayDate
     );
   }, []);
 

@@ -51,7 +51,8 @@ export const fetchLearnerData = async (
   userEmail,
   setIsTechLead,
   setLearnerData,
-  setIsTechCoach
+  setIsTechCoach,
+  yesterdayDate
 ) => {
   const tasksByLearner = {};
   let taskQuery;
@@ -82,7 +83,7 @@ export const fetchLearnerData = async (
           ? (taskQuery = query(
               collection(db, "forgedTasks"),
               where("author.name", "in", learnersMap),
-              where("dateAdded", ">", yesterdayDate.toISOString())
+              where("dateAdded", ">=", yesterdayDate.toISOString())
             ))
           : (taskQuery = query(
               collection(db, "forgedTasks"),
