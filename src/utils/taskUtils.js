@@ -158,13 +158,19 @@ export const formattedData = (learnerData, isGroup) => {
       ? `Learner: ${hasLearnerName}\nYesterday:\n`
       : `Yesterday:\n`;
 
-    const filterByDate = (cards, date) =>
-      cards.filter((card) => dateAddedStr(card) === date.toDateString());
+    const filterByDate = (cards, date) => {
+      if (date === "yesterday") {
+        return cards.filter(
+          (card) => dateAddedStr(card) < new Date().toDateString()
+        );
+      } else {
+        return cards.filter(
+          (card) => dateAddedStr(card) === new Date().toDateString()
+        );
+      }
+    };
 
-    const yesterdayCards = filterByDate(
-      data,
-      new Date(new Date().setDate(new Date().getDate() - 1))
-    );
+    const yesterdayCards = filterByDate(data, "yesterday");
 
     const filterByCardType = (cards, cardType) =>
       cards.filter((card) => card.cardType === cardType);
@@ -180,16 +186,14 @@ export const formattedData = (learnerData, isGroup) => {
     formattedData += formatSectionData(yesterdayReviewCards);
     formattedData += "\nMissed:\n";
 
-    const missedCards = filterByDate(
-      data.filter((card) => !card.isChecked),
-      new Date(new Date().setDate(new Date().getDate() - 1))
-    );
-
+    const missedData = data.filter((card) => !card.isChecked);
+    const missedCards = filterByDate(missedData, "yesterday");
+  
     formattedData += formatSectionData(missedCards, "missed");
 
     formattedData += `\nToday:\n`;
 
-    const todayCards = filterByDate(data, new Date());
+    const todayCards = filterByDate(data);
 
     const todayProjectsCards = filterByCardType(todayCards, "project");
 
