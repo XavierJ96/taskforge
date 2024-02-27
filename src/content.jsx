@@ -3,23 +3,30 @@
 import "./styles/index.css";
 import "./styles/injectBtnStyles.css";
 import { db } from "./utils/firebase_config";
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 let taskArr;
 
+const today = new Date();
+const yesterday = new Date(today);
+const dayOfWeek = yesterday.getDay();
+
+if (dayOfWeek - 1 === 0) {
+  yesterday.setDate(today.getDate() - 3);
+} else {
+  yesterday.setDate(today.getDate() - 1);
+}
+
+yesterday.setHours(0, 0, 0, 0);
+
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
-  const today = new Date();
-  const yesterday = new Date(today);
-  const dayOfWeek = yesterday.getDay();
-
-  if (dayOfWeek === 0) {
-    yesterday.setDate(today.getDate() - 2);
-  } else {
-    yesterday.setDate(today.getDate() - 1);
-  }
-
-  yesterday.setHours(0, 0, 0, 0);
 
   const taskRef = query(
     collection(db, "forgedTasks"),
@@ -27,11 +34,17 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
     where("dateAdded", ">", yesterday.toISOString()),
     orderBy("dateAdded", "desc")
   );
-  
+
   const unsub = onSnapshot(taskRef, (snapshot) => {
     taskArr = snapshot.docs;
+    chrome.runtime.sendMessage({
+      action: "setNotificationCount",
+      count: taskArr.length,
+    });
     updateButtonState();
   });
+
+  () => unsub();
 });
 
 function updateButtonState() {
@@ -46,7 +59,8 @@ function updateButtonState() {
 
     const addButton = card.querySelector("#addBtn");
     if (addButton !== null) {
-      const isTaskAdded = isTaskAlreadyAdded(cardTitle, cardAssignee);
+      const isTaskAdded = isTaskAlreadyAdded(cardAssignee, cardTitle);
+
       const pushBtn = card.querySelector("#pushBtn");
       const openBtn = card.querySelector("#requestBtn");
       const icon = addButton.querySelector("i");
@@ -69,15 +83,26 @@ function updateButtonState() {
   });
 }
 
-function isTaskAlreadyAdded(cardTitle, cardAssignee) {
-  return taskArr.some((doc) => {
-    const docTitle = doc.data().cardTitle;
-    const docAssignee = doc.data().cardAssignee;
-    return (
+function isTaskAlreadyAdded(cardAssignee, cardTitle) {
+  let isTaskAdded;
+
+  taskArr.forEach((doc) => {
+    let docTitle = doc.data().cardTitle;
+    let docAssignee = doc.data().cardAssignee;
+
+    if (
       docTitle === cardTitle &&
       (docAssignee === cardAssignee || doc.data().cardType !== "review")
-    );
+    ) {
+      let docDate = new Date(doc.data().dateAdded);
+
+      if (docDate.toDateString() === today.toDateString()) {
+        isTaskAdded = true;
+      }
+    }
   });
+
+  return isTaskAdded;
 }
 
 function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
@@ -286,6 +311,7 @@ function getCardType(cardElement) {
   } else if (backgroundColor === "rgb(255, 224, 178)") {
     return "review";
   } else {
+    return "unknown";
     return "unknown";
   }
 }

@@ -2,6 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
+import Airtable from "airtable";
+
+export const table = new Airtable({
+  apiKey: import.meta.env.VITE_AIRTABLE_API_KEY,
+}).base(import.meta.env.VITE_AIRTABLE_BASE);
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

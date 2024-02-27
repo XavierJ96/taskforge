@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "../utils/firebase_config";
 import { collection, query, where, orderBy } from "firebase/firestore";
 import "../styles/Home.css";
@@ -18,6 +18,8 @@ function Home({ userEmail }) {
   const [isTechLead, setIsTechLead] = useState(false);
   const [isTechCoach, setIsTechCoach] = useState(false);
 
+  const effectRan = useRef(false);
+
   useEffect(() => {
     chrome.storage.local.get(["todayVisible", "yesterdayVisible"], (result) => {
       setTodayVisible(result.todayVisible);
@@ -29,22 +31,21 @@ function Home({ userEmail }) {
   const yesterdayDate = new Date(todayDate);
   const dayOfWeek = yesterdayDate.getDay();
 
-  if (dayOfWeek === 0) {
-    yesterdayDate.setDate(todayDate.getDate() - 2);
+  if (dayOfWeek - 1 === 0) {
+    yesterdayDate.setDate(todayDate.getDate() - 3);
   } else {
     yesterdayDate.setDate(todayDate.getDate() - 1);
   }
 
   yesterdayDate.setHours(0, 0, 0, 0);
-
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
-    where("dateAdded", ">", yesterdayDate.toISOString()),
+    where("dateAdded", ">=", yesterdayDate.toISOString()),
     orderBy("dateAdded", "desc")
   );
 
-  const learnerRef = collection(db, "learnerData");
+  const learnerRef = query(collection(db, "learnerData"));
 
   useEffect(() => {
     taskUtils.fetchTasks(taskRef, userEmail, setTaskData);
@@ -56,25 +57,10 @@ function Home({ userEmail }) {
       userEmail,
       setIsTechLead,
       setLearnerData,
-      setIsTechCoach
+      setIsTechCoach,
+      yesterdayDate
     );
   }, []);
-
-  useEffect(() => {
-    let today = new Date();
-    let yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    let formattedToday = today.toISOString().split("T")[0];
-    let formattedYesterday = yesterday.toISOString().split("T")[0];
-
-    let filteredTasks = taskData.filter((task) => {
-      let taskDate = task.dateAdded.split("T")[0];
-      return taskDate === formattedToday || taskDate === formattedYesterday;
-    });
-
-    taskUtils.setNotificationCount(filteredTasks.length);
-  }, [taskData]);
 
   const logout = async () => {
     taskUtils.setNotificationCount(0);
@@ -89,23 +75,37 @@ function Home({ userEmail }) {
     taskUtils.deleteAllTasks(taskData, taskRef, setTaskData);
   };
 
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
   const reviewTasksCount = taskUtils.getCountForCardType(
     "review",
     taskData,
-    today,
-    yesterday
+    todayDate,
+    yesterdayDate
   );
 
   const projectTasksCount = taskUtils.getCountForCardType(
     "project",
     taskData,
-    today,
-    yesterday
+    todayDate,
+    yesterdayDate
   );
+
+  useEffect(() => {
+    if (effectRan.current === false) {
+      if (taskData.length > 0) {
+        chrome.runtime.sendMessage({
+          action: "postTasks",
+          userEmail: userEmail,
+          tasks: taskUtils.formattedData(taskData, false),
+          date: todayDate.toISOString().substring(0, 10),
+          missed: taskData.filter(
+            (task) =>
+              new Date(task.dateAdded).toDateString() !==
+                todayDate.toDateString() && !task.isChecked
+          ).length,
+        });
+      }
+    }
+  }, [taskData]);
 
   const generateTasks = (section) => {
     const filteredTasks = taskData.filter((task) => {
@@ -115,11 +115,8 @@ function Home({ userEmail }) {
       if (section === "today") {
         return taskDate.toDateString() === today.toDateString();
       } else if (section === "yesterday") {
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        return taskDate.toDateString() === yesterday.toDateString();
+        return taskDate.toDateString() !== today.toDateString();
       }
-
       return false;
     });
 

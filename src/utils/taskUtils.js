@@ -10,12 +10,14 @@ import {
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase_config";
 
+const todayDate = new Date();
+
 export const getCountForCardType = (cardType, taskData, today, yesterday) => {
   return taskData.filter(
     (task) =>
       task.cardType === cardType &&
       (new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() === yesterday.toDateString())
+        new Date(task.dateAdded).toDateString() >= yesterday.toDateString())
   ).length;
 };
 
@@ -49,30 +51,47 @@ export const fetchLearnerData = async (
   userEmail,
   setIsTechLead,
   setLearnerData,
-  setIsTechCoach
+  setIsTechCoach,
+  yesterdayDate
 ) => {
   const tasksByLearner = {};
-  const unsub = onSnapshot(learnerRef, async (snapshot) => {
-    snapshot.forEach(async (doc) => {
+  let taskQuery;
+
+  try {
+    const snapshot = await getDocs(learnerRef);
+
+    for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
       const techCoachEmail = doc.data().techCoach;
 
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
+
       if (techCoachEmail === userEmail) {
         setIsTechCoach(true);
       }
 
       if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
         const learnersMap = doc.data().learners;
+        const nineDaysAgo = new Date(todayDate);
+        nineDaysAgo.setDate(nineDaysAgo.getDate() - 9);
+
+        const nineDaysAgoTimestamp = nineDaysAgo.toISOString();
+
+        techCoachEmail !== userEmail
+          ? (taskQuery = query(
+              collection(db, "forgedTasks"),
+              where("author.name", "in", learnersMap),
+              where("dateAdded", ">=", yesterdayDate.toISOString())
+            ))
+          : (taskQuery = query(
+              collection(db, "forgedTasks"),
+              where("author.name", "in", learnersMap),
+              where("dateAdded", ">", nineDaysAgoTimestamp)
+            ));
 
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
-          const taskQuery = query(
-            collection(db, "forgedTasks"),
-            where("author.name", "in", learnersMap)
-          );
-
           const taskSnapshot = await getDocs(taskQuery);
 
           taskSnapshot.forEach((taskDoc) => {
@@ -87,12 +106,12 @@ export const fetchLearnerData = async (
           });
         }
       }
-    });
+    }
 
     setLearnerData(tasksByLearner);
-  });
-
-  return () => unsub();
+  } catch (error) {
+    console.error("Error fetching learner data:", error);
+  }
 };
 
 const formatSectionData = (data, option) => {
@@ -112,8 +131,24 @@ const formatSectionData = (data, option) => {
     .join("");
 };
 
+export function getMissedTasks(tasks) {
+  const lines = tasks.split("\n");
+
+  const missedIndex = lines.indexOf("Missed:");
+
+  if (missedIndex !== -1) {
+    const missedTasks = lines.slice(
+      missedIndex + 1,
+      lines.indexOf("", missedIndex)
+    );
+
+    const missedTasksString = missedTasks.join("\n").trim();
+
+    return missedTasksString;
+  }
+}
+
 export const formattedData = (learnerData, isGroup) => {
-  console.log(learnerData);
   let formattedData = "";
 
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
@@ -123,13 +158,19 @@ export const formattedData = (learnerData, isGroup) => {
       ? `Learner: ${hasLearnerName}\nYesterday:\n`
       : `Yesterday:\n`;
 
-    const filterByDate = (cards, date) =>
-      cards.filter((card) => dateAddedStr(card) === date.toDateString());
+    const filterByDate = (cards, date) => {
+      if (date === "yesterday") {
+        return cards.filter(
+          (card) => dateAddedStr(card) < new Date().toDateString()
+        );
+      } else {
+        return cards.filter(
+          (card) => dateAddedStr(card) === new Date().toDateString()
+        );
+      }
+    };
 
-    const yesterdayCards = filterByDate(
-      data,
-      new Date(new Date().setDate(new Date().getDate() - 1))
-    );
+    const yesterdayCards = filterByDate(data, "yesterday");
 
     const filterByCardType = (cards, cardType) =>
       cards.filter((card) => card.cardType === cardType);
@@ -145,16 +186,14 @@ export const formattedData = (learnerData, isGroup) => {
     formattedData += formatSectionData(yesterdayReviewCards);
     formattedData += "\nMissed:\n";
 
-    const missedCards = filterByDate(
-      data.filter((card) => !card.isChecked),
-      new Date(new Date().setDate(new Date().getDate() - 1))
-    );
-
+    const missedData = data.filter((card) => !card.isChecked);
+    const missedCards = filterByDate(missedData, "yesterday");
+  
     formattedData += formatSectionData(missedCards, "missed");
 
     formattedData += `\nToday:\n`;
 
-    const todayCards = filterByDate(data, new Date());
+    const todayCards = filterByDate(data);
 
     const todayProjectsCards = filterByCardType(todayCards, "project");
 
@@ -204,7 +243,6 @@ export const formatWeeklyReport = (learnerData) => {
       let startDate = new Date(currentDate);
       let endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 1);
-
       formattedData += hasLearnerName
         ? `Learner: ${hasLearnerName}\n${currentDay} (${
             startDate.toISOString().split("T")[0]
@@ -288,7 +326,7 @@ export const deleteAllTasks = (taskData, taskRef, setTaskData) => {
         new Date(task.dateAdded).toDateString() === today.toDateString() ||
         new Date(task.dateAdded).toDateString() === yesterday.toDateString()
       ) {
-        await deleteDoc(doc(taskRef, task.id));
+        await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
       }
     });
 
