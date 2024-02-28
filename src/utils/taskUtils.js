@@ -151,6 +151,19 @@ export function getMissedTasks(tasks) {
 export const formattedData = (learnerData, isGroup) => {
   let formattedData = "";
 
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const yesterdayDayOfWeek = yesterday.getDay();
+
+  let friday;
+
+  if (yesterdayDayOfWeek === 0) {
+    friday = new Date(yesterday);
+    friday.setDate(yesterday.getDate() - 2);
+  }
+
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
   const processLearnerData = (data, hasLearnerName) => {
@@ -160,8 +173,11 @@ export const formattedData = (learnerData, isGroup) => {
 
     const filterByDate = (cards, date) => {
       if (date === "yesterday") {
-        return cards.filter(
-          (card) => dateAddedStr(card) < new Date().toDateString()
+        return cards.filter((card) =>
+          yesterdayDayOfWeek === 0
+            ? dateAddedStr(card) >= friday.toDateString() &&
+              dateAddedStr(card) !== today.toDateString()
+            : dateAddedStr(card) === yesterday.toDateString()
         );
       } else {
         return cards.filter(
@@ -188,7 +204,7 @@ export const formattedData = (learnerData, isGroup) => {
 
     const missedData = data.filter((card) => !card.isChecked);
     const missedCards = filterByDate(missedData, "yesterday");
-  
+
     formattedData += formatSectionData(missedCards, "missed");
 
     formattedData += `\nToday:\n`;
