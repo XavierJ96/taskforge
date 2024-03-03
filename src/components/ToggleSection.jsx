@@ -4,7 +4,7 @@ import { faAngleDown, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 function ToggleSection({ isVisible, onClick, label, taskCount }) {
   return (
-    <div className="toggle-section">
+    <div className={`toggle-section${label === "Yesterday" ? " pb-14" : ""}`}>
       <div className="text-[#E4E4E4] flex space-x-2 items-center">
         <FontAwesomeIcon
           icon={isVisible ? faAngleDown : faAngleRight}
