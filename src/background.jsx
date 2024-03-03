@@ -3,6 +3,15 @@
 import { db, auth } from "./utils/firebase_config";
 import { addDoc, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { resetTaskPostedState, updateOrCreateRecord } from "./utils/airtable";
+
+resetTaskPostedState();
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "postTasks") {
+    updateOrCreateRecord(message);
+  }
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "setNotificationCount") {
@@ -10,11 +19,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "checkSignInStatus") {
     const authSub = onAuthStateChanged(auth, (user) => {
       sendResponse({ user });
-    });
-  } else if (message.action === "getCurrentUserUid") {
-    const authSub = onAuthStateChanged(auth, (user) => {
-      const uid = user ? user.uid : null;
-      sendResponse({ uid });
     });
   } else if (message.action === "saveTaskToFirebase") {
     let { user } = message;
