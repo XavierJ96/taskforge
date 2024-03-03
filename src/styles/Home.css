@@ -167,6 +167,7 @@
   background-position-y: center;
   padding-right: 1.5rem;
   background-size: 0.75rem;
+  cursor: pointer;
 }
 
 #delete-btn:focus {

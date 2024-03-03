@@ -175,7 +175,7 @@ function Home({ userEmail }) {
         isTechCoach={isTechCoach}
         isPopupVisible={isPopupVisible}
       />
-      <div className="task-board space-y-3">
+      <div className="task-board space-y-3 pb-16">
         <Stats
           projectTasksCount={projectTasksCount}
           reviewTasksCount={reviewTasksCount}
