@@ -14,11 +14,6 @@ function AddTasks() {
     setTaskDate(event.target.value);
   };
 
-  const handleDateIconClick = () => {
-    const currentDate = new Date().toISOString().split("T")[0];
-    setTaskDate(currentDate);
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const task = {
@@ -48,13 +43,14 @@ function AddTasks() {
           onChange={handleTextChange}
         />
       </div>
-      <input
-        type="date"
+      <select
         required
-        className="border w-[150px] bg-[#161616] text-white border-gray-300 px-2 py-2 text-[11px] rounded-lg"
-        value={taskDate}
+        className="border w-[150px] bg-[#161616] text-white border-gray-300 px-2 py-2 text-[11px] rounded-lg appearance-none custom-select-arrow"
         onChange={handleDateChange}
-      />
+      >
+        <option value="today">Today</option>
+        <option value="yesterday">Yesterday</option>
+      </select>
     </form>
   );
 }
