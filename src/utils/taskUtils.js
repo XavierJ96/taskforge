@@ -332,7 +332,7 @@ export const logoutUser = async () => {
   await signOut(auth);
 };
 
-export const deleteAllTasks = (taskData, taskRef, setTaskData) => {
+export const deleteAllTasks = (taskData, setTaskData) => {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);

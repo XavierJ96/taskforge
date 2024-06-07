@@ -30,6 +30,8 @@ function Home({ userEmail }) {
   const todayDate = new Date();
   const yesterdayDate = new Date(todayDate);
   const dayOfWeek = yesterdayDate.getDay();
+  
+  yesterdayDate.setHours(0, 0, 0, 0);
 
   if (dayOfWeek - 1 === 0) {
     yesterdayDate.setDate(todayDate.getDate() - 3);
@@ -37,7 +39,6 @@ function Home({ userEmail }) {
     yesterdayDate.setDate(todayDate.getDate() - 1);
   }
 
-  yesterdayDate.setHours(0, 0, 0, 0);
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
@@ -72,7 +73,7 @@ function Home({ userEmail }) {
   };
 
   const handleDeleteAll = async () => {
-    taskUtils.deleteAllTasks(taskData, taskRef, setTaskData);
+    taskUtils.deleteAllTasks(taskData, setTaskData);
   };
 
   const reviewTasksCount = taskUtils.getCountForCardType(
