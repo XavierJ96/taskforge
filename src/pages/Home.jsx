@@ -26,23 +26,11 @@ function Home({ userEmail }) {
       setYesterdayVisible(result.yesterdayVisible);
     });
   }, [todayVisible, yesterdayVisible]);
-
-  const todayDate = new Date();
-  const yesterdayDate = new Date(todayDate);
-  const dayOfWeek = yesterdayDate.getDay();
   
-  yesterdayDate.setHours(0, 0, 0, 0);
-
-  if (dayOfWeek - 1 === 0) {
-    yesterdayDate.setDate(todayDate.getDate() - 3);
-  } else {
-    yesterdayDate.setDate(todayDate.getDate() - 1);
-  }
-
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
-    where("dateAdded", ">=", yesterdayDate.toISOString()),
+    where("dateAdded", ">=", taskUtils.setupDates.yesterdayDate().toISOString()),
     orderBy("dateAdded", "desc")
   );
 
@@ -58,8 +46,7 @@ function Home({ userEmail }) {
       userEmail,
       setIsTechLead,
       setLearnerData,
-      setIsTechCoach,
-      yesterdayDate
+      setIsTechCoach
     );
   }, []);
 
@@ -79,15 +66,11 @@ function Home({ userEmail }) {
   const reviewTasksCount = taskUtils.getCountForCardType(
     "review",
     taskData,
-    todayDate,
-    yesterdayDate
   );
 
   const projectTasksCount = taskUtils.getCountForCardType(
     "project",
     taskData,
-    todayDate,
-    yesterdayDate
   );
 
   useEffect(() => {
@@ -97,11 +80,11 @@ function Home({ userEmail }) {
           action: "postTasks",
           userEmail: userEmail,
           tasks: taskUtils.formattedData(taskData, false),
-          date: todayDate.toISOString().substring(0, 10),
+          date: taskUtils.setupDates.todayDate.toISOString().substring(0, 10),
           missed: taskData.filter(
             (task) =>
               new Date(task.dateAdded).toDateString() !==
-                todayDate.toDateString() && !task.isChecked
+                taskUtils.dateStrings.todayString && !task.isChecked
           ).length,
         });
       }
@@ -110,13 +93,12 @@ function Home({ userEmail }) {
 
   const generateTasks = (section) => {
     const filteredTasks = taskData.filter((task) => {
-      const today = new Date();
       const taskDate = new Date(task.dateAdded);
 
       if (section === "today") {
-        return taskDate.toDateString() === today.toDateString();
+        return taskDate.toDateString() === taskUtils.dateStrings.todayString;
       } else if (section === "yesterday") {
-        return taskDate.toDateString() !== today.toDateString();
+        return taskDate.toDateString() !==  taskUtils.dateStrings.todayString;
       }
       return false;
     });

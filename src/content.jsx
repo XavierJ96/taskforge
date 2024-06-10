@@ -2,6 +2,7 @@
 
 import "./styles/index.css";
 import "./styles/injectBtnStyles.css";
+import { setupDates, dateStrings } from "./utils/taskUtils";
 import { db } from "./utils/firebase_config";
 import {
   collection,
@@ -31,7 +32,7 @@ chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.id", "==", uid),
-    where("dateAdded", ">", yesterday.toISOString()),
+    where("dateAdded", ">", setupDates.yesterdayDate().toISOString()),
     orderBy("dateAdded", "desc")
   );
 
@@ -96,7 +97,7 @@ function isTaskAlreadyAdded(cardAssignee, cardTitle) {
     ) {
       let docDate = new Date(doc.data().dateAdded);
 
-      if (docDate.toDateString() === today.toDateString()) {
+      if (docDate.toDateString() === dateStrings.todayString) {
         isTaskAdded = true;
       }
     }

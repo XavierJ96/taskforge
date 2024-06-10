@@ -10,14 +10,33 @@ import {
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase_config";
 
-const todayDate = new Date();
+export const setupDates = {
+  todayDate: new Date(),
+  yesterdayDate: function () {
+    const date = new Date(this.todayDate);
+    const dayOfWeek = date.getDay();
+    const daysToSubtract = (dayOfWeek - 1 === 0) ? 3 : 1;
+    date.setDate(date.getDate() - daysToSubtract);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  },
+  yesterdayDayOfWeek: function () {
+    return this.yesterdayDate().getDay();
+  },
+};
 
-export const getCountForCardType = (cardType, taskData, today, yesterday) => {
+
+export const dateStrings = {
+  todayString: setupDates.todayDate.toDateString(),
+  yesterdayString: setupDates.yesterdayDate().toDateString(),
+};
+
+export const getCountForCardType = (cardType, taskData) => {
   return taskData.filter(
     (task) =>
       task.cardType === cardType &&
-      (new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() >= yesterday.toDateString())
+      (new Date(task.dateAdded).toDateString() === dateStrings.todayString ||
+        new Date(task.dateAdded).toDateString() >= dateStrings.yesterdayString)
   ).length;
 };
 
@@ -51,8 +70,7 @@ export const fetchLearnerData = async (
   userEmail,
   setIsTechLead,
   setLearnerData,
-  setIsTechCoach,
-  yesterdayDate
+  setIsTechCoach
 ) => {
   const tasksByLearner = {};
   let taskQuery;
@@ -74,7 +92,7 @@ export const fetchLearnerData = async (
 
       if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
         const learnersMap = doc.data().learners;
-        const nineDaysAgo = new Date(todayDate);
+        const nineDaysAgo = new Date(setupDates.todayDate);
         nineDaysAgo.setDate(nineDaysAgo.getDate() - 9);
 
         const nineDaysAgoTimestamp = nineDaysAgo.toISOString();
@@ -83,7 +101,7 @@ export const fetchLearnerData = async (
           ? (taskQuery = query(
               collection(db, "forgedTasks"),
               where("author.name", "in", learnersMap),
-              where("dateAdded", ">=", yesterdayDate.toISOString())
+              where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
             ))
           : (taskQuery = query(
               collection(db, "forgedTasks"),
@@ -151,18 +169,18 @@ export function getMissedTasks(tasks) {
 export const formattedData = (learnerData, isGroup) => {
   let formattedData = "";
 
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+  // const today = new Date();
+  // const yesterday = new Date(today);
+  // yesterday.setDate(today.getDate() - 1);
 
-  const yesterdayDayOfWeek = yesterday.getDay();
+  // const yesterdayDayOfWeek = yesterday.getDay();
 
-  let friday;
+  // let friday;
 
-  if (yesterdayDayOfWeek === 0) {
-    friday = new Date(yesterday);
-    friday.setDate(yesterday.getDate() - 2);
-  }
+  // if (yesterdayDayOfWeek === 0) {
+  //   friday = new Date(yesterday);
+  //   friday.setDate(yesterday.getDate() - 2);
+  // }
 
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
@@ -174,14 +192,14 @@ export const formattedData = (learnerData, isGroup) => {
     const filterByDate = (cards, date) => {
       if (date === "yesterday") {
         return cards.filter((card) =>
-          yesterdayDayOfWeek === 0
-            ? dateAddedStr(card) >= friday.toDateString() &&
-              dateAddedStr(card) !== today.toDateString()
-            : dateAddedStr(card) === yesterday.toDateString()
+          setupDates.yesterdayDayOfWeek() === 0
+            ? dateAddedStr(card) >= setupDates.yesterdayDate().toDateString() &&
+              dateAddedStr(card) !== setupDates.todayDate.toDateString()
+            : dateAddedStr(card) === setupDates.yesterdayDate().toDateString()
         );
       } else {
         return cards.filter(
-          (card) => dateAddedStr(card) === new Date().toDateString()
+          (card) => dateAddedStr(card) === dateStrings.todayString
         );
       }
     };
@@ -333,14 +351,11 @@ export const logoutUser = async () => {
 };
 
 export const deleteAllTasks = (taskData, setTaskData) => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
   try {
     taskData.forEach(async (task) => {
       if (
-        new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() === yesterday.toDateString()
+        new Date(task.dateAdded).toDateString() === dateStrings.todayString ||
+        new Date(task.dateAdded).toDateString() !== dateStrings.todayString
       ) {
         await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
       }
