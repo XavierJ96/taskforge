@@ -27,7 +27,7 @@ function Home({ userEmail }) {
       setYesterdayVisible(result.yesterdayVisible);
     });
   }, [todayVisible, yesterdayVisible]);
-  
+
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
@@ -142,6 +142,14 @@ function Home({ userEmail }) {
     }
   };
 
+  const handleViewChange = (newView) => {
+    if (view === newView) {
+      setView(null);
+    } else {
+      setView(newView);
+    }
+  };
+
   return (
     <div className="task-container">
       <Header
@@ -160,6 +168,8 @@ function Home({ userEmail }) {
         <Stats
           projectTasksCount={projectTasksCount}
           reviewTasksCount={reviewTasksCount}
+          onClick={handleViewChange}
+          view={view}
         />
         <ToggleSection
           isVisible={todayVisible}
@@ -167,7 +177,11 @@ function Home({ userEmail }) {
           label="Today"
           taskCount={generateTasks("today").length}
         />
-        <TaskList tasks={generateTasks("today")} isVisible={todayVisible} />
+        <TaskList
+          tasks={generateTasks("today")}
+          isVisible={todayVisible}
+          view={view}
+        />
         <ToggleSection
           isVisible={yesterdayVisible}
           onClick={() => showTasks("yesterday")}
@@ -177,6 +191,7 @@ function Home({ userEmail }) {
         <TaskList
           tasks={generateTasks("yesterday")}
           isVisible={yesterdayVisible}
+          view={view}
         />
       </div>
     </div>
