@@ -14,18 +14,6 @@ import {
 
 let taskArr;
 
-const today = new Date();
-const yesterday = new Date(today);
-const dayOfWeek = yesterday.getDay();
-
-if (dayOfWeek - 1 === 0) {
-  yesterday.setDate(today.getDate() - 3);
-} else {
-  yesterday.setDate(today.getDate() - 1);
-}
-
-yesterday.setHours(0, 0, 0, 0);
-
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
 
@@ -131,20 +119,20 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
         (docAssignee === cardAssignee || doc.data().cardType !== "review")
       ) {
         let docDate = new Date(doc.data().dateAdded);
-        let today = new Date();
+        // let today = new Date();
 
-        if (docDate.toDateString() === today.toDateString()) {
+        if (docDate.toDateString() === dateStrings.todayString) {
           isTaskAdded = true;
         }
 
         if (
-          docDate.toDateString() === today.toDateString() &&
+          docDate.toDateString() === dateStrings.todayString &&
           doc.data().pushCode
         ) {
           gitPushed = true;
         }
         if (
-          docDate.toDateString() === today.toDateString() &&
+          docDate.toDateString() === dateStrings.todayString &&
           doc.data().openPullRequest
         ) {
           openPr = true;

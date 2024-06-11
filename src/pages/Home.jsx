@@ -17,6 +17,7 @@ function Home({ userEmail }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isTechLead, setIsTechLead] = useState(false);
   const [isTechCoach, setIsTechCoach] = useState(false);
+  const [view, setView] = useState(null);
 
   const effectRan = useRef(false);
 
@@ -30,7 +31,11 @@ function Home({ userEmail }) {
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.name", "==", userEmail),
-    where("dateAdded", ">=", taskUtils.setupDates.yesterdayDate().toISOString()),
+    where(
+      "dateAdded",
+      ">=",
+      taskUtils.setupDates.yesterdayDate().toISOString()
+    ),
     orderBy("dateAdded", "desc")
   );
 
@@ -63,15 +68,9 @@ function Home({ userEmail }) {
     taskUtils.deleteAllTasks(taskData, setTaskData);
   };
 
-  const reviewTasksCount = taskUtils.getCountForCardType(
-    "review",
-    taskData,
-  );
+  const reviewTasksCount = taskUtils.getCountForCardType("review", taskData);
 
-  const projectTasksCount = taskUtils.getCountForCardType(
-    "project",
-    taskData,
-  );
+  const projectTasksCount = taskUtils.getCountForCardType("project", taskData);
 
   useEffect(() => {
     if (effectRan.current === false) {
@@ -98,7 +97,7 @@ function Home({ userEmail }) {
       if (section === "today") {
         return taskDate.toDateString() === taskUtils.dateStrings.todayString;
       } else if (section === "yesterday") {
-        return taskDate.toDateString() !==  taskUtils.dateStrings.todayString;
+        return taskDate.toDateString() !== taskUtils.dateStrings.todayString;
       }
       return false;
     });

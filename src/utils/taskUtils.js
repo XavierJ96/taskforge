@@ -15,7 +15,7 @@ export const setupDates = {
   yesterdayDate: function () {
     const date = new Date(this.todayDate);
     const dayOfWeek = date.getDay();
-    const daysToSubtract = (dayOfWeek - 1 === 0) ? 3 : 1;
+    const daysToSubtract = dayOfWeek - 1 === 0 ? 3 : 1;
     date.setDate(date.getDate() - daysToSubtract);
     date.setHours(0, 0, 0, 0);
     return date;
@@ -24,7 +24,6 @@ export const setupDates = {
     return this.yesterdayDate().getDay();
   },
 };
-
 
 export const dateStrings = {
   todayString: setupDates.todayDate.toDateString(),
@@ -168,19 +167,6 @@ export function getMissedTasks(tasks) {
 
 export const formattedData = (learnerData, isGroup) => {
   let formattedData = "";
-
-  // const today = new Date();
-  // const yesterday = new Date(today);
-  // yesterday.setDate(today.getDate() - 1);
-
-  // const yesterdayDayOfWeek = yesterday.getDay();
-
-  // let friday;
-
-  // if (yesterdayDayOfWeek === 0) {
-  //   friday = new Date(yesterday);
-  //   friday.setDate(yesterday.getDate() - 2);
-  // }
 
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
@@ -353,12 +339,8 @@ export const logoutUser = async () => {
 export const deleteAllTasks = (taskData, setTaskData) => {
   try {
     taskData.forEach(async (task) => {
-      if (
-        new Date(task.dateAdded).toDateString() === dateStrings.todayString ||
-        new Date(task.dateAdded).toDateString() !== dateStrings.todayString
-      ) {
-        await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
-      }
+      console.log(task);
+      await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
     });
 
     setTaskData([]);
