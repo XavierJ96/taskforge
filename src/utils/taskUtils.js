@@ -68,8 +68,7 @@ export const fetchLearnerData = async (
   learnerRef,
   userEmail,
   setIsTechLead,
-  setLearnerData,
-  setIsTechCoach
+  setLearnerData
 ) => {
   const tasksByLearner = {};
   let taskQuery;
@@ -79,34 +78,19 @@ export const fetchLearnerData = async (
 
     for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
-      const techCoachEmail = doc.data().techCoach;
 
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
 
-      if (techCoachEmail === userEmail) {
-        setIsTechCoach(true);
-      }
-
-      if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
+      if (techLeadEmail === userEmail) {
         const learnersMap = doc.data().learners;
-        const nineDaysAgo = new Date(setupDates.todayDate);
-        nineDaysAgo.setDate(nineDaysAgo.getDate() - 9);
 
-        const nineDaysAgoTimestamp = nineDaysAgo.toISOString();
-
-        techCoachEmail !== userEmail
-          ? (taskQuery = query(
-              collection(db, "forgedTasks"),
-              where("author.name", "in", learnersMap),
-              where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
-            ))
-          : (taskQuery = query(
-              collection(db, "forgedTasks"),
-              where("author.name", "in", learnersMap),
-              where("dateAdded", ">", nineDaysAgoTimestamp)
-            ));
+        taskQuery = query(
+          collection(db, "forgedTasks"),
+          where("author.name", "in", learnersMap),
+          where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
+        );
 
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
           const taskSnapshot = await getDocs(taskQuery);
@@ -236,74 +220,6 @@ export const formattedData = (learnerData, isGroup) => {
     }
   } else {
     processLearnerData(learnerData);
-  }
-
-  return formattedData.trim();
-};
-
-export const formatWeeklyReport = (learnerData) => {
-  let formattedData = "";
-
-  const processLearnerData = (data, hasLearnerName) => {
-    const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date();
-      currentDate.setDate(currentDate.getDate() - i);
-      const currentDay = daysOfWeek[currentDate.getDay()];
-
-      let startDate = new Date(currentDate);
-      let endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 1);
-      formattedData += hasLearnerName
-        ? `Learner: ${hasLearnerName}\n${currentDay} (${
-            startDate.toISOString().split("T")[0]
-          }):\n`
-        : `${currentDay} (${startDate.toISOString().split("T")[0]}):\n`;
-
-      const filterByDateRange = (cards, startDate, endDate) =>
-        cards.filter(
-          (card) =>
-            new Date(card.dateAdded).toISOString().split("T")[0] ===
-            startDate.toISOString().split("T")[0]
-        );
-
-      const dayCards = filterByDateRange(data, startDate, endDate);
-
-      const filterByCardType = (cards, cardType) =>
-        cards.filter((card) => card.cardType === cardType);
-
-      const dayProjectsCards = filterByCardType(dayCards, "project");
-
-      formattedData += formatSectionData(dayProjectsCards, "day");
-
-      formattedData += "\nReviews:\n";
-
-      const dayReviewCards = filterByCardType(dayCards, "review");
-
-      formattedData += formatSectionData(dayReviewCards, "day");
-      formattedData += "\nMissed:\n";
-
-      const missedCards = dayCards.filter((card) => !card.isChecked);
-
-      formattedData += formatSectionData(missedCards, "missed");
-
-      formattedData += "\n";
-    }
-  };
-
-  for (const learner in learnerData) {
-    const data = learnerData[learner];
-    const learnerName = learner;
-    processLearnerData(data, learnerName);
   }
 
   return formattedData.trim();

@@ -16,7 +16,6 @@ function Home({ userEmail }) {
   const [learnerData, setLearnerData] = useState({});
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isTechLead, setIsTechLead] = useState(false);
-  const [isTechCoach, setIsTechCoach] = useState(false);
   const [view, setView] = useState(null);
 
   const effectRan = useRef(false);
@@ -51,7 +50,6 @@ function Home({ userEmail }) {
       userEmail,
       setIsTechLead,
       setLearnerData,
-      setIsTechCoach
     );
   }, []);
 
@@ -124,11 +122,6 @@ function Home({ userEmail }) {
     taskUtils.copyToClipboard(data);
   };
 
-  const copyWeekReport = () => {
-    const data = taskUtils.formatWeeklyReport(learnerData);
-    taskUtils.copyToClipboard(data);
-  };
-
   const showTasks = (section) => {
     if (section === "today") {
       setTodayVisible((prev) => !prev);
@@ -157,11 +150,9 @@ function Home({ userEmail }) {
         togglePopup={togglePopup}
         handleDeleteAll={handleDeleteAll}
         copyLearnerData={copyLearnerData}
-        copyWeekReport={copyWeekReport}
         logout={logout}
         copyMyTasks={copyMyTasks}
         isTechLead={isTechLead}
-        isTechCoach={isTechCoach}
         isPopupVisible={isPopupVisible}
       />
       <div className="task-board space-y-3">
