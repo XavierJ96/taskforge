@@ -46,10 +46,9 @@ export const togglePopup = (isPopupVisible, setIsPopupVisible) => {
 export const fetchTasks = (taskRef, userEmail, setTaskData) => {
   const unsubscribe = onSnapshot(taskRef, (snapshot) => {
     const tasks = [];
-
+    
     snapshot.forEach((doc) => {
       const author = doc.data().author.name;
-
       if (author === userEmail) {
         tasks.push({
           id: doc.id,
