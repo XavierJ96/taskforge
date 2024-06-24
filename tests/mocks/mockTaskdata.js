@@ -39,4 +39,41 @@ export const mockCardData = [
     openPullRequest: true,
     pushCode: true,
   },
+  {
+    author: {
+      id: "plFecQBafcN2nwmv37zgltS8TfR2",
+      name: "user3@gmail.com",
+    },
+    cardAssignee: "jane.doe@example.com",
+    cardTitle: "Develop login",
+    cardType: "project",
+    dateAdded: `${new Date().toDateString()}`,
+    id: "xw6J7uKzR8NeT4uQYk5A",
+    openPullRequest: true,
+    pushCode: true,
+  },
+];
+
+export const mockDocs = [
+  {
+    id: "1",
+    data: () => ({
+      author: { name: "test@example.com" },
+      title: "Task 1",
+    }),
+  },
+  {
+    id: "2",
+    data: () => ({
+      author: { name: "other@example.com" },
+      title: "Task 2",
+    }),
+  },
+  {
+    id: "3",
+    data: () => ({
+      author: { name: "test@example.com" },
+      title: "Task 3",
+    }),
+  },
 ];

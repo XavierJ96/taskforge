@@ -1,11 +1,23 @@
-import { describe, it, expect, test, vi, beforeEach } from "vitest";
+import { describe, it, expect, test, vi, beforeEach, afterEach } from "vitest";
 import {
   setupDates,
   getCountForCardType,
   fetchTasks,
+  fetchLearnerData,
 } from "../src/utils/taskUtils";
-import { mockCardData } from "./mocks/mockTaskdata";
-import { onSnapshot } from "firebase/firestore";
+import { mockCardData, mockDocs } from "./mocks/mockTaskdata";
+import { onSnapshot, getDocs } from "firebase/firestore";
+
+vi.mock("firebase/firestore", () => {
+  return {
+    getFirestore: vi.fn(),
+    getDocs: vi.fn(),
+    query: vi.fn(),
+    collection: vi.fn(),
+    where: vi.fn(),
+    onSnapshot: vi.fn(),
+  };
+});
 
 describe("setupDates", () => {
   test("should have todayDate set to current date", () => {
@@ -41,16 +53,11 @@ describe("getCountForCardType", () => {
     const projectAmount = getCountForCardType("project", mockCardData);
 
     expect(reviewAmount).toEqual(1);
-    expect(projectAmount).toEqual(2);
+    expect(projectAmount).toEqual(3);
   });
 });
 
 describe("fetchTasks", () => {
-  vi.mock("firebase/firestore", () => ({
-    getFirestore: vi.fn(),
-    onSnapshot: vi.fn(),
-  }));
-
   let taskRef;
   let userEmail;
   let setTaskData;
@@ -63,31 +70,7 @@ describe("fetchTasks", () => {
     onSnapshot.mockImplementation((ref, callback) => {
       const snapshot = {
         forEach: (cb) => {
-          const docs = [
-            {
-              id: "1",
-              data: () => ({
-                author: { name: "test@example.com" },
-                title: "Task 1",
-              }),
-            },
-            {
-              id: "2",
-              data: () => ({
-                author: { name: "other@example.com" },
-                title: "Task 2",
-              }),
-            },
-            {
-              id: "3",
-              data: () => ({
-                author: { name: "test@example.com" },
-                title: "Task 3",
-              }),
-            },
-          ];
-
-          docs.forEach(cb);
+          mockDocs.forEach(cb);
         },
       };
 
@@ -112,5 +95,81 @@ describe("fetchTasks", () => {
         title: "Task 3",
       },
     ]);
+  });
+});
+
+describe("fetchLearnerData", () => {
+  const mockLearnerRef = {};
+  const mockUserEmail = "test@user.com";
+  const mockSetIsTechLead = vi.fn();
+  const mockSetLearnerData = vi.fn();
+
+  const snapshot = {
+    docs: [
+      {
+        data: () => ({ techLead: "test@user.com", learners: ["learner1"] }),
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    const taskSnapshot = {
+      forEach: vi.fn((callback) => {
+        const taskDoc = {
+          data: () => ({
+            author: { name: "learner1" },
+            taskData: "someData",
+          }),
+        };
+        callback(taskDoc);
+      }),
+    };
+
+    getDocs.mockResolvedValueOnce(snapshot);
+    getDocs.mockResolvedValueOnce(taskSnapshot);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should call setIsTechLead with true if the user is a tech lead", async () => {
+    const snapshot = {
+      docs: [
+        {
+          data: () => ({ techLead: "test@user.com", learners: ["learner1"] }),
+        },
+      ],
+    };
+
+    getDocs.mockResolvedValue(snapshot);
+
+    await fetchLearnerData(
+      mockLearnerRef,
+      mockUserEmail,
+      mockSetIsTechLead,
+      mockSetLearnerData
+    );
+
+    expect(mockSetIsTechLead).toHaveBeenCalledWith(true);
+  });
+
+  it("should call setLearnerData with the correct data", async () => {
+    await fetchLearnerData(
+      mockLearnerRef,
+      mockUserEmail,
+      mockSetIsTechLead,
+      mockSetLearnerData
+    );
+
+    expect(mockSetLearnerData).toHaveBeenCalledWith({
+      learner1: [
+        {
+          author: { name: "learner1" },
+          taskData: "someData",
+        },
+      ],
+    });
+    expect(mockSetIsTechLead).toHaveBeenCalledWith(true);
   });
 });

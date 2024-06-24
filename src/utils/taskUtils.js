@@ -30,6 +30,19 @@ export const dateStrings = {
   yesterdayString: setupDates.yesterdayDate().toDateString(),
 };
 
+export const userTaskRef = (userEmail,db) => query(
+  collection(db, "forgedTasks"),
+  where("author.name", "==", userEmail),
+  where(
+    "dateAdded",
+    ">=",
+    taskUtils.setupDates.yesterdayDate().toISOString()
+  ),
+  orderBy("dateAdded", "desc")
+);
+
+export const learnerDataRef = query(collection(db, "learnerData"));
+
 export const getCountForCardType = (cardType, taskData) => {
   return taskData.filter(
     (task) =>
@@ -74,26 +87,26 @@ export const fetchLearnerData = async (
 
   try {
     const snapshot = await getDocs(learnerRef);
-
+    
     for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
-
+      
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
-
+      
       if (techLeadEmail === userEmail) {
         const learnersMap = doc.data().learners;
-
+        
         taskQuery = query(
           collection(db, "forgedTasks"),
           where("author.name", "in", learnersMap),
           where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
         );
-
+        
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
-          const taskSnapshot = await getDocs(taskQuery);
-
+          const taskSnapshot = await getDocs(taskQuery)
+          
           taskSnapshot.forEach((taskDoc) => {
             const learnerName = taskDoc.data().author.name;
 

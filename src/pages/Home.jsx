@@ -27,26 +27,13 @@ function Home({ userEmail }) {
     });
   }, [todayVisible, yesterdayVisible]);
 
-  const taskRef = query(
-    collection(db, "forgedTasks"),
-    where("author.name", "==", userEmail),
-    where(
-      "dateAdded",
-      ">=",
-      taskUtils.setupDates.yesterdayDate().toISOString()
-    ),
-    orderBy("dateAdded", "desc")
-  );
-
-  const learnerRef = query(collection(db, "learnerData"));
-
   useEffect(() => {
-    taskUtils.fetchTasks(taskRef, userEmail, setTaskData);
+    taskUtils.fetchTasks(taskUtils.userTaskRef(userEmail,db), userEmail, setTaskData);
   }, []);
 
   useEffect(() => {
     taskUtils.fetchLearnerData(
-      learnerRef,
+      taskUtils.learnerDataRef,
       userEmail,
       setIsTechLead,
       setLearnerData,
