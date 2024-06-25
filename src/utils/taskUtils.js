@@ -6,6 +6,7 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase_config";
@@ -30,16 +31,13 @@ export const dateStrings = {
   yesterdayString: setupDates.yesterdayDate().toDateString(),
 };
 
-export const userTaskRef = (userEmail,db) => query(
-  collection(db, "forgedTasks"),
-  where("author.name", "==", userEmail),
-  where(
-    "dateAdded",
-    ">=",
-    taskUtils.setupDates.yesterdayDate().toISOString()
-  ),
-  orderBy("dateAdded", "desc")
-);
+export const userTaskRef = (userEmail, db) =>
+  query(
+    collection(db, "forgedTasks"),
+    where("author.name", "==", userEmail),
+    where("dateAdded", ">=", setupDates.yesterdayDate().toISOString()),
+    orderBy("dateAdded", "desc")
+  );
 
 export const learnerDataRef = query(collection(db, "learnerData"));
 
@@ -59,7 +57,7 @@ export const togglePopup = (isPopupVisible, setIsPopupVisible) => {
 export const fetchTasks = (taskRef, userEmail, setTaskData) => {
   const unsubscribe = onSnapshot(taskRef, (snapshot) => {
     const tasks = [];
-    
+
     snapshot.forEach((doc) => {
       const author = doc.data().author.name;
       if (author === userEmail) {
@@ -87,26 +85,26 @@ export const fetchLearnerData = async (
 
   try {
     const snapshot = await getDocs(learnerRef);
-    
+
     for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
-      
+
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
-      
+
       if (techLeadEmail === userEmail) {
         const learnersMap = doc.data().learners;
-        
+
         taskQuery = query(
           collection(db, "forgedTasks"),
           where("author.name", "in", learnersMap),
           where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
         );
-        
+
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
-          const taskSnapshot = await getDocs(taskQuery)
-          
+          const taskSnapshot = await getDocs(taskQuery);
+
           taskSnapshot.forEach((taskDoc) => {
             const learnerName = taskDoc.data().author.name;
 
@@ -233,7 +231,6 @@ export const formattedData = (learnerData, isGroup) => {
   } else {
     processLearnerData(learnerData);
   }
-
   return formattedData.trim();
 };
 

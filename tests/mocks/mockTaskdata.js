@@ -1,4 +1,3 @@
-// __mocks__/mockCardData.js
 export const mockCardData = [
   {
     author: {
@@ -53,6 +52,8 @@ export const mockCardData = [
     pushCode: true,
   },
 ];
+
+export const expectedFormat = `Yesterday:\n\nReviews:\n\nMissed:\n\nToday:\nEmail random inspirational quote - part 3 \nDevelop login functionality - GIT Push & Open PR\nDevelop login - GIT Push & Open PR\n\nReviews:\nsemitone difference - Make a simple GUI by daniel.deacon@umuzi.org`;
 
 export const mockDocs = [
   {

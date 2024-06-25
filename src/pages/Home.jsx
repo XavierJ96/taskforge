@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { db } from "../utils/firebase_config";
-import { collection, query, where, orderBy } from "firebase/firestore";
 import "../styles/Home.css";
 import Header from "../components/Header";
 import Stats from "../components/Stats";

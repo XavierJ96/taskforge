@@ -4,8 +4,9 @@ import {
   getCountForCardType,
   fetchTasks,
   fetchLearnerData,
+  formattedData,
 } from "../src/utils/taskUtils";
-import { mockCardData, mockDocs } from "./mocks/mockTaskdata";
+import { expectedFormat, formatData, mockCardData, mockDocs } from "./mocks/mockTaskdata";
 import { onSnapshot, getDocs } from "firebase/firestore";
 
 vi.mock("firebase/firestore", () => {
@@ -171,5 +172,13 @@ describe("fetchLearnerData", () => {
       ],
     });
     expect(mockSetIsTechLead).toHaveBeenCalledWith(true);
+  });
+});
+
+describe("formattedData", () => {
+  it("should return the correct formatted data", () => {
+    const data = formattedData(mockCardData, false);
+    
+    expect(data).toBe(expectedFormat);
   });
 });
