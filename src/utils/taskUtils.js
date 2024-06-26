@@ -121,7 +121,7 @@ export const fetchLearnerData = async (
 
     setLearnerData(tasksByLearner);
   } catch (error) {
-    console.error("Error fetching learner data:", error);
+    throw new Error("Error fetching learner data:", error);
   }
 };
 
@@ -242,10 +242,10 @@ export const copyToClipboard = (data) => {
         alert("Formatted data copied to clipboard!");
       })
       .catch((error) => {
-        console.error("Failed to copy to clipboard:", error);
+        throw new Error("Failed to copy to clipboard:", error);
       });
   } catch (error) {
-    console.error("Error fetching data:", error);
+    throw new Error("Error fetching data:", error);
   }
 };
 
@@ -261,15 +261,13 @@ export const logoutUser = async () => {
   await signOut(auth);
 };
 
-export const deleteAllTasks = (taskData, setTaskData) => {
+export const deleteAllTasks = async (taskData, setTaskData) => {
   try {
-    taskData.forEach(async (task) => {
-      console.log(task);
+    await Promise.all(taskData.map(async (task) => {
       await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
-    });
-
+    }));
     setTaskData([]);
   } catch (error) {
-    console.error("Error deleting tasks:", error);
+    throw new Error(`Error deleting tasks: ${error.message}`);
   }
 };

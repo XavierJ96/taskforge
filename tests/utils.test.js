@@ -5,9 +5,15 @@ import {
   fetchTasks,
   fetchLearnerData,
   formattedData,
+  deleteAllTasks,
 } from "../src/utils/taskUtils";
-import { expectedFormat, formatData, mockCardData, mockDocs } from "./mocks/mockTaskdata";
-import { onSnapshot, getDocs } from "firebase/firestore";
+import {
+  expectedFormat,
+  formatData,
+  mockCardData,
+  mockDocs,
+} from "./mocks/mockTaskdata";
+import { onSnapshot, getDocs, deleteDoc, doc } from "firebase/firestore";
 
 vi.mock("firebase/firestore", () => {
   return {
@@ -17,6 +23,8 @@ vi.mock("firebase/firestore", () => {
     collection: vi.fn(),
     where: vi.fn(),
     onSnapshot: vi.fn(),
+    deleteDoc: vi.fn(),
+    doc: vi.fn(),
   };
 });
 
@@ -178,7 +186,41 @@ describe("fetchLearnerData", () => {
 describe("formattedData", () => {
   it("should return the correct formatted data", () => {
     const data = formattedData(mockCardData, false);
-    
+
     expect(data).toBe(expectedFormat);
+  });
+});
+
+describe("deleteAllTasks", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should delete all tasks and setTaskData to an empty array", async () => {
+    const taskData = [{ id: "task1" }, { id: "task2" }];
+    const setTaskData = vi.fn();
+
+    deleteDoc.mockResolvedValueOnce(taskData);
+
+    await deleteAllTasks(taskData, setTaskData);
+
+    expect(deleteDoc).toHaveBeenCalledTimes(taskData.length);
+    expect(setTaskData).toHaveBeenCalledWith([]);
+  });
+
+  it("should throw an error if deletion fails", async () => {
+    const mockTaskData = [{ id: "1" }, { id: "2" }];
+    const mockSetTaskData = vi.fn();
+
+    deleteDoc.mockRejectedValueOnce(new Error("Deletion failed"));
+
+    const callDeleteAllTasks = async () => {
+      await deleteAllTasks(mockTaskData, mockSetTaskData);
+    };
+
+    await expect(callDeleteAllTasks()).rejects.toThrow(
+      "Error deleting tasks: Deletion failed"
+    );
+    expect(mockSetTaskData).not.toHaveBeenCalled();
   });
 });
