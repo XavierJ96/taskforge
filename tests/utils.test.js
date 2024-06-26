@@ -30,14 +30,14 @@ vi.mock("firebase/firestore", () => {
 });
 
 describe("setupDates", () => {
-  test("should have todayDate set to current date", () => {
+  it("should have todayDate set to current date", () => {
     const today = new Date();
     const todayDate = new Date(setupDates.todayDate);
 
     expect(todayDate.toDateString()).toBe(today.toDateString());
   });
 
-  test("should return yesterday's date correctly", () => {
+  it("should return yesterday's date correctly", () => {
     const yesterday = setupDates.yesterdayDate();
     const today = new Date(setupDates.todayDate);
 
@@ -50,7 +50,7 @@ describe("setupDates", () => {
     expect(yesterday.toDateString()).toBe(expectedDate.toDateString());
   });
 
-  test("should return the correct day of the week for yesterday", () => {
+  it("should return the correct day of the week for yesterday", () => {
     const yesterday = setupDates.yesterdayDate();
     const yesterdayDayOfWeek = setupDates.yesterdayDayOfWeek();
     expect(yesterdayDayOfWeek).toBe(yesterday.getDay());
@@ -58,7 +58,7 @@ describe("setupDates", () => {
 });
 
 describe("getCountForCardType", () => {
-  test("should return the card amount for each card type", () => {
+  it("should return the card amount for each card type", () => {
     const reviewAmount = getCountForCardType("review", mockCardData);
     const projectAmount = getCountForCardType("project", mockCardData);
 
@@ -90,7 +90,7 @@ describe("fetchTasks", () => {
     });
   });
 
-  test("filters tasks by userEmail and calls setTaskData with the correct tasks", () => {
+  it("filters tasks by userEmail and calls setTaskData with the correct tasks", () => {
     fetchTasks(taskRef, userEmail, setTaskData);
 
     expect(setTaskData).toHaveBeenCalledWith([
@@ -143,7 +143,7 @@ describe("fetchLearnerData", () => {
     vi.clearAllMocks();
   });
 
-  test("should call setIsTechLead with true if the user is a tech lead", async () => {
+  it("should call setIsTechLead with true if the user is a tech lead", async () => {
     const snapshot = {
       docs: [
         {
@@ -164,7 +164,7 @@ describe("fetchLearnerData", () => {
     expect(mockSetIsTechLead).toHaveBeenCalledWith(true);
   });
 
-  test("should call setLearnerData with the correct data", async () => {
+  it("should call setLearnerData with the correct data", async () => {
     await fetchLearnerData(
       mockLearnerRef,
       mockUserEmail,
@@ -185,7 +185,7 @@ describe("fetchLearnerData", () => {
 });
 
 describe("formattedData", () => {
-  test("should return the correct formatted data", () => {
+  it("should return the correct formatted data", () => {
     const data = formattedData(mockCardData, false);
 
     expect(data).toBe(expectedFormat);
@@ -197,7 +197,7 @@ describe("deleteAllTasks", () => {
     vi.clearAllMocks();
   });
 
-  test("should delete all tasks and setTaskData to an empty array", async () => {
+  it("should delete all tasks and setTaskData to an empty array", async () => {
     const taskData = [{ id: "task1" }, { id: "task2" }];
     const setTaskData = vi.fn();
 
@@ -209,7 +209,7 @@ describe("deleteAllTasks", () => {
     expect(setTaskData).toHaveBeenCalledWith([]);
   });
 
-  test("should throw an error if deletion fails", async () => {
+  it("should throw an error if deletion fails", async () => {
     const mockTaskData = [{ id: "1" }, { id: "2" }];
     const mockSetTaskData = vi.fn();
 
@@ -227,7 +227,7 @@ describe("deleteAllTasks", () => {
 });
 
 describe("togglePopup", () => {
-  test("should toggle the popup visibility", () => {
+  it("should toggle the popup visibility", () => {
     let isPopupVisible = false;
     const mockSetIsPopupVisible = vi.fn();
 
