@@ -142,23 +142,6 @@ const formatSectionData = (data, option) => {
     .join("");
 };
 
-export function getMissedTasks(tasks) {
-  const lines = tasks.split("\n");
-
-  const missedIndex = lines.indexOf("Missed:");
-
-  if (missedIndex !== -1) {
-    const missedTasks = lines.slice(
-      missedIndex + 1,
-      lines.indexOf("", missedIndex)
-    );
-
-    const missedTasksString = missedTasks.join("\n").trim();
-
-    return missedTasksString;
-  }
-}
-
 export const formattedData = (learnerData, isGroup) => {
   let formattedData = "";
 

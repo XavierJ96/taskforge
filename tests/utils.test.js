@@ -6,6 +6,7 @@ import {
   fetchLearnerData,
   formattedData,
   deleteAllTasks,
+  togglePopup,
 } from "../src/utils/taskUtils";
 import {
   expectedFormat,
@@ -89,7 +90,7 @@ describe("fetchTasks", () => {
     });
   });
 
-  it("filters tasks by userEmail and calls setTaskData with the correct tasks", () => {
+  test("filters tasks by userEmail and calls setTaskData with the correct tasks", () => {
     fetchTasks(taskRef, userEmail, setTaskData);
 
     expect(setTaskData).toHaveBeenCalledWith([
@@ -142,7 +143,7 @@ describe("fetchLearnerData", () => {
     vi.clearAllMocks();
   });
 
-  it("should call setIsTechLead with true if the user is a tech lead", async () => {
+  test("should call setIsTechLead with true if the user is a tech lead", async () => {
     const snapshot = {
       docs: [
         {
@@ -163,7 +164,7 @@ describe("fetchLearnerData", () => {
     expect(mockSetIsTechLead).toHaveBeenCalledWith(true);
   });
 
-  it("should call setLearnerData with the correct data", async () => {
+  test("should call setLearnerData with the correct data", async () => {
     await fetchLearnerData(
       mockLearnerRef,
       mockUserEmail,
@@ -184,7 +185,7 @@ describe("fetchLearnerData", () => {
 });
 
 describe("formattedData", () => {
-  it("should return the correct formatted data", () => {
+  test("should return the correct formatted data", () => {
     const data = formattedData(mockCardData, false);
 
     expect(data).toBe(expectedFormat);
@@ -196,7 +197,7 @@ describe("deleteAllTasks", () => {
     vi.clearAllMocks();
   });
 
-  it("should delete all tasks and setTaskData to an empty array", async () => {
+  test("should delete all tasks and setTaskData to an empty array", async () => {
     const taskData = [{ id: "task1" }, { id: "task2" }];
     const setTaskData = vi.fn();
 
@@ -208,7 +209,7 @@ describe("deleteAllTasks", () => {
     expect(setTaskData).toHaveBeenCalledWith([]);
   });
 
-  it("should throw an error if deletion fails", async () => {
+  test("should throw an error if deletion fails", async () => {
     const mockTaskData = [{ id: "1" }, { id: "2" }];
     const mockSetTaskData = vi.fn();
 
@@ -222,5 +223,22 @@ describe("deleteAllTasks", () => {
       "Error deleting tasks: Deletion failed"
     );
     expect(mockSetTaskData).not.toHaveBeenCalled();
+  });
+});
+
+describe("togglePopup", () => {
+  test("should toggle the popup visibility", () => {
+    let isPopupVisible = false;
+    const mockSetIsPopupVisible = vi.fn();
+
+    togglePopup(isPopupVisible, mockSetIsPopupVisible);
+
+    expect(mockSetIsPopupVisible).toHaveBeenCalledTimes(1);
+    expect(mockSetIsPopupVisible).toHaveBeenCalledWith(true);
+
+    togglePopup(true, mockSetIsPopupVisible);
+
+    expect(mockSetIsPopupVisible).toHaveBeenCalledTimes(2);
+    expect(mockSetIsPopupVisible).toHaveBeenCalledWith(false);
   });
 });
