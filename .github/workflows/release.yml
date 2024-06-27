@@ -19,3 +19,5 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    if: github.event_name != 'pull_request'
