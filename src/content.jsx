@@ -2,6 +2,7 @@
 
 import "./styles/index.css";
 import "./styles/injectBtnStyles.css";
+import { setupDates, dateStrings } from "./utils/taskUtils";
 import { db } from "./utils/firebase_config";
 import {
   collection,
@@ -13,25 +14,13 @@ import {
 
 let taskArr;
 
-const today = new Date();
-const yesterday = new Date(today);
-const dayOfWeek = yesterday.getDay();
-
-if (dayOfWeek - 1 === 0) {
-  yesterday.setDate(today.getDate() - 3);
-} else {
-  yesterday.setDate(today.getDate() - 1);
-}
-
-yesterday.setHours(0, 0, 0, 0);
-
 chrome.runtime.sendMessage({ action: "checkSignInStatus" }, (response) => {
   let uid = response.user.uid;
 
   const taskRef = query(
     collection(db, "forgedTasks"),
     where("author.id", "==", uid),
-    where("dateAdded", ">", yesterday.toISOString()),
+    where("dateAdded", ">", setupDates.yesterdayDate().toISOString()),
     orderBy("dateAdded", "desc")
   );
 
@@ -96,7 +85,7 @@ function isTaskAlreadyAdded(cardAssignee, cardTitle) {
     ) {
       let docDate = new Date(doc.data().dateAdded);
 
-      if (docDate.toDateString() === today.toDateString()) {
+      if (docDate.toDateString() === dateStrings.todayString) {
         isTaskAdded = true;
       }
     }
@@ -130,20 +119,20 @@ function addButtonToCard(card, cardTitle, cardType, cardAssignee, gitLink) {
         (docAssignee === cardAssignee || doc.data().cardType !== "review")
       ) {
         let docDate = new Date(doc.data().dateAdded);
-        let today = new Date();
+        // let today = new Date();
 
-        if (docDate.toDateString() === today.toDateString()) {
+        if (docDate.toDateString() === dateStrings.todayString) {
           isTaskAdded = true;
         }
 
         if (
-          docDate.toDateString() === today.toDateString() &&
+          docDate.toDateString() === dateStrings.todayString &&
           doc.data().pushCode
         ) {
           gitPushed = true;
         }
         if (
-          docDate.toDateString() === today.toDateString() &&
+          docDate.toDateString() === dateStrings.todayString &&
           doc.data().openPullRequest
         ) {
           openPr = true;

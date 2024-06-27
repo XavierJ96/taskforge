@@ -73,7 +73,6 @@ function createNewRecord(data) {
         console.error("Error creating record:", err);
         return;
       }
-      console.log("Record created:", records[0].id);
     }
   );
 }

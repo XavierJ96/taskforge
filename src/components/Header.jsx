@@ -9,8 +9,6 @@ function Header({
   isPopupVisible,
   isTechLead,
   copyMyTasks,
-  copyWeekReport,
-  isTechCoach,
 }) {
   return (
     <div className="header">
@@ -69,19 +67,6 @@ function Header({
                   className="font-normal text-sm py-2 active:scale-90"
                 >
                   Copy Learner Tasks
-                </span>
-              </div>
-            ) : null}
-            {isTechCoach ? (
-              <div
-                className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
-                onClick={copyWeekReport}
-              >
-                <span
-                  id=""
-                  className="font-normal text-sm py-2 active:scale-90"
-                >
-                  Copy Learner's Report
                 </span>
               </div>
             ) : null}
