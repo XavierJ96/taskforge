@@ -27,7 +27,11 @@ function Home({ userEmail }) {
   }, [todayVisible, yesterdayVisible]);
 
   useEffect(() => {
-    taskUtils.fetchTasks(taskUtils.userTaskRef(userEmail,db), userEmail, setTaskData);
+    taskUtils.fetchTasks(
+      taskUtils.userTaskRef(userEmail, db),
+      userEmail,
+      setTaskData
+    );
   }, []);
 
   useEffect(() => {
@@ -35,7 +39,7 @@ function Home({ userEmail }) {
       taskUtils.learnerDataRef,
       userEmail,
       setIsTechLead,
-      setLearnerData,
+      setLearnerData
     );
   }, []);
 

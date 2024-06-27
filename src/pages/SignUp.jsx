@@ -92,8 +92,10 @@ function Register({ updateUserEmail }) {
                 name="password"
                 type="password"
                 value={password}
-                onChange={(e) => {setPassword(e.target.value)
-                  setError(null);}}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError(null);
+                }}
                 autoComplete="current-password"
                 pattern=".{8,}"
                 title="Password must be at least 8 characters long."

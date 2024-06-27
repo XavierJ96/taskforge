@@ -16,15 +16,15 @@ function TaskList({ tasks, isVisible, view }) {
   return (
     <div id="task-list" style={{ display: isVisible ? "block" : "none" }}>
       {filteredTasks.map((task) => (
-          <TaskCard
-            key={task.props.taskId}
-            taskId={task.props.taskId}
-            cardTitle={task.props.cardTitle}
-            cardAssignee={task.props.cardAssignee}
-            isChecked={task.props.isChecked}
-            cardType={task.props.cardType}
-            gitLink={task.props.gitLink}
-          />
+        <TaskCard
+          key={task.props.taskId}
+          taskId={task.props.taskId}
+          cardTitle={task.props.cardTitle}
+          cardAssignee={task.props.cardAssignee}
+          isChecked={task.props.isChecked}
+          cardType={task.props.cardType}
+          gitLink={task.props.gitLink}
+        />
       ))}
     </div>
   );
