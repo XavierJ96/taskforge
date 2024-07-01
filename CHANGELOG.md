@@ -1,3 +1,18 @@
+## [1.1.0](https://github.com/XavierJ96/taskforge/compare/v1.0.0...v1.1.0) (2024-07-01)
+
+### 🪶Features
+
+* add modal dialog ([dcb931d](https://github.com/XavierJ96/taskforge/commit/dcb931dfdc73403c4c9dc81de1b87d0d70f7f938))
+* add modal dialog for deleteing tasks ([24e007f](https://github.com/XavierJ96/taskforge/commit/24e007fb86b467fabfd8b985259102978283275e))
+
+### ⚒️Miscellaneous Chores
+
+* add getMissedTasks ([e5ee9fd](https://github.com/XavierJ96/taskforge/commit/e5ee9fd1ad55d4c8bae09a931ae55f110cdceec3))
+* fix filter background color ([8976661](https://github.com/XavierJ96/taskforge/commit/8976661b845d84ce292b81d761b8d1077acb11f9))
+* pass taskdata as props to header component ([c8cbe2d](https://github.com/XavierJ96/taskforge/commit/c8cbe2d8d770c15066f4ec0122da60fc2873bf90))
+* setup modal inside header component ([6dba207](https://github.com/XavierJ96/taskforge/commit/6dba2070efa96a86fe5eda8b336afdf84e2151b6))
+* update manivest version for chrome store ([3e8cc7d](https://github.com/XavierJ96/taskforge/commit/3e8cc7dc6db683b8a61e09d407b98f052a23e462))
+
 ## 1.0.0 (2024-06-27)
 
 ### 🪶Features
