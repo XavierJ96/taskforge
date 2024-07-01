@@ -1,15 +1,30 @@
 import React from "react";
+import ModalDialogComponent from "./ModalDialog";
+import { deleteAllTasks } from "../utils/taskUtils";
+import { useState } from "react";
 
 function Header({
   userEmail,
   togglePopup,
-  handleDeleteAll,
   copyLearnerData,
   logout,
   isPopupVisible,
   isTechLead,
   copyMyTasks,
+  taskData,
+  setTaskData,
 }) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  function setModal() {
+    return setIsModalVisible(!isModalVisible);
+  }
+
+  const handleDeleteAll = async () => {
+    deleteAllTasks(taskData, setTaskData);
+    setIsModalVisible(false);
+  };
+
   return (
     <div className="header">
       <div className="my-auto">
@@ -42,6 +57,12 @@ function Header({
             </g>
           </svg>
         </button>
+        {isModalVisible && (
+          <ModalDialogComponent
+            handleDeleteAll={handleDeleteAll}
+            setModal={setModal}
+          />
+        )}
         {isPopupVisible && (
           <div className="popup text-[#E4E4E4] fixed right-4 bg-[#252525] py-3 rounded-md min-w-[200px]">
             {userEmail && (
@@ -51,7 +72,7 @@ function Header({
             )}
             <div
               className="flex px-3 hover:bg-[#a2a2a2] hover:cursor-pointer"
-              onClick={handleDeleteAll}
+              onClick={setModal}
             >
               <span id="" className="font-normal text-sm py-2">
                 Delete All
