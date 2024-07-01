@@ -27,7 +27,11 @@ function Home({ userEmail }) {
   }, [todayVisible, yesterdayVisible]);
 
   useEffect(() => {
-    taskUtils.fetchTasks(taskUtils.userTaskRef(userEmail,db), userEmail, setTaskData);
+    taskUtils.fetchTasks(
+      taskUtils.userTaskRef(userEmail, db),
+      userEmail,
+      setTaskData
+    );
   }, []);
 
   useEffect(() => {
@@ -35,7 +39,7 @@ function Home({ userEmail }) {
       taskUtils.learnerDataRef,
       userEmail,
       setIsTechLead,
-      setLearnerData,
+      setLearnerData
     );
   }, []);
 
@@ -46,10 +50,6 @@ function Home({ userEmail }) {
 
   const togglePopup = () => {
     taskUtils.togglePopup(isPopupVisible, setIsPopupVisible);
-  };
-
-  const handleDeleteAll = async () => {
-    taskUtils.deleteAllTasks(taskData, setTaskData);
   };
 
   const reviewTasksCount = taskUtils.getCountForCardType("review", taskData);
@@ -134,12 +134,13 @@ function Home({ userEmail }) {
       <Header
         userEmail={userEmail}
         togglePopup={togglePopup}
-        handleDeleteAll={handleDeleteAll}
         copyLearnerData={copyLearnerData}
         logout={logout}
         copyMyTasks={copyMyTasks}
         isTechLead={isTechLead}
         isPopupVisible={isPopupVisible}
+        taskData={taskData}
+        setTaskData={setTaskData}
       />
       <div className="task-board space-y-3">
         <Stats
