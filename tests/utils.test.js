@@ -1,4 +1,4 @@
-import { describe, it, expect, test, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   setupDates,
   getCountForCardType,
@@ -10,11 +10,10 @@ import {
 } from "../src/utils/taskUtils";
 import {
   expectedFormat,
-  formatData,
   mockCardData,
   mockDocs,
 } from "./mocks/mockTaskdata";
-import { onSnapshot, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
 
 vi.mock("firebase/firestore", () => {
   return {
