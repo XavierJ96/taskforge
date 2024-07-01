@@ -31,6 +31,23 @@ export const dateStrings = {
   yesterdayString: setupDates.yesterdayDate().toDateString(),
 };
 
+export function getMissedTasks(tasks) {
+  const lines = tasks.split("\n");
+
+  const missedIndex = lines.indexOf("Missed:");
+
+  if (missedIndex !== -1) {
+    const missedTasks = lines.slice(
+      missedIndex + 1,
+      lines.indexOf("", missedIndex)
+    );
+
+    const missedTasksString = missedTasks.join("\n").trim();
+
+    return missedTasksString;
+  }
+}
+
 export const userTaskRef = (userEmail, db) =>
   query(
     collection(db, "forgedTasks"),
@@ -246,9 +263,11 @@ export const logoutUser = async () => {
 
 export const deleteAllTasks = async (taskData, setTaskData) => {
   try {
-    await Promise.all(taskData.map(async (task) => {
-      await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
-    }));
+    await Promise.all(
+      taskData.map(async (task) => {
+        await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
+      })
+    );
     setTaskData([]);
   } catch (error) {
     throw new Error(`Error deleting tasks: ${error.message}`);
