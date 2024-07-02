@@ -1,3 +1,22 @@
+## [1.2.0](https://github.com/XavierJ96/taskforge/compare/v1.1.0...v1.2.0) (2024-07-02)
+
+### 🪶Features
+
+* add button for manual tasks ([4ef8bb1](https://github.com/XavierJ96/taskforge/commit/4ef8bb124ef019a28ff5320c005126437e52f657))
+* add function to submit manual tasks ([f4fd808](https://github.com/XavierJ96/taskforge/commit/f4fd80832c719568038012b6efb40ed1cbe1e2e9))
+
+### 🐛Bug Fixes
+
+* selected date when submitting a manual task ([4a6a3ef](https://github.com/XavierJ96/taskforge/commit/4a6a3efd2137cb80331b680440b035f17b23ebc0))
+
+### ⚒️Miscellaneous Chores
+
+* align manifest version with cuurrently released version ([d8bdb3d](https://github.com/XavierJ96/taskforge/commit/d8bdb3d5cb58d8e8630e77dcafcb2228f32e31db))
+* format doc ([251c778](https://github.com/XavierJ96/taskforge/commit/251c778e7f84249548df083b71ebb713aca454b7))
+* make tasks scrollable ([95e521e](https://github.com/XavierJ96/taskforge/commit/95e521e8331a7104dd729c1f43f2a351ae000141))
+* update manifest version ([2356f1a](https://github.com/XavierJ96/taskforge/commit/2356f1ad0ece0836761d871c7e728dd20c63aaf7))
+* update select to be today and yesterday ([0a57370](https://github.com/XavierJ96/taskforge/commit/0a57370f2698061bd1679d5fd6153de8cafd8a9c))
+
 ## [1.1.0](https://github.com/XavierJ96/taskforge/compare/v1.0.0...v1.1.0) (2024-07-01)
 
 ### 🪶Features
