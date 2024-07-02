@@ -7,6 +7,7 @@ import { db } from "../utils/firebase_config";
 function AddTasks() {
   const [taskText, setTaskText] = useState("");
   const [taskDate, setTaskDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState('today');
 
   const handleTextChange = (event) => {
     setTaskText(event.target.value);
@@ -15,6 +16,7 @@ function AddTasks() {
   const tasksCollection = collection(db, "forgedTasks");
 
   const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
     setTaskDate(event.target.value);
   };
 
@@ -41,8 +43,6 @@ function AddTasks() {
       dateAdded = new Date().toISOString();
     }
 
-    console.log("submitted");
-
     chrome.runtime.sendMessage(
       { action: "checkSignInStatus" },
       async (response) => {
@@ -58,6 +58,7 @@ function AddTasks() {
 
           setTaskText("");
           setTaskDate("");
+          setSelectedDate('today');
         } catch (error) {
           throw new Error("Error adding document: ", error);
         }
@@ -89,6 +90,7 @@ function AddTasks() {
         required
         className="border w-[150px] bg-[#161616] text-white border-gray-300 px-2 py-2 text-[11px] rounded-lg appearance-none custom-select-arrow"
         onChange={handleDateChange}
+        value={selectedDate}
       >
         <option value="today">Today</option>
         <option value="yesterday">Yesterday</option>
