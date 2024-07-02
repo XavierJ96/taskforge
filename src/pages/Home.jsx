@@ -7,6 +7,7 @@ import TaskCard from "../components/TaskComponent";
 import ToggleSection from "../components/ToggleSection";
 import TaskList from "../components/TaskList";
 import * as taskUtils from "../utils/taskUtils";
+import AddTasks from "../components/AddTasks";
 
 function Home({ userEmail }) {
   const [taskData, setTaskData] = useState([]);
@@ -142,7 +143,7 @@ function Home({ userEmail }) {
         taskData={taskData}
         setTaskData={setTaskData}
       />
-      <div className="task-board space-y-3">
+      <div className="task-board space-y-3 pb-16">
         <Stats
           projectTasksCount={projectTasksCount}
           reviewTasksCount={reviewTasksCount}
@@ -172,6 +173,7 @@ function Home({ userEmail }) {
           view={view}
         />
       </div>
+      <AddTasks />
     </div>
   );
 }
