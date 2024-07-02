@@ -6,18 +6,64 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth, db } from "./firebase_config";
 
-const todayDate = new Date();
+export const setupDates = {
+  todayDate: new Date(),
+  yesterdayDate: function () {
+    const date = new Date(this.todayDate);
+    const dayOfWeek = date.getDay();
+    const daysToSubtract = dayOfWeek - 1 === 0 ? 3 : 1;
+    date.setDate(date.getDate() - daysToSubtract);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  },
+  yesterdayDayOfWeek: function () {
+    return this.yesterdayDate().getDay();
+  },
+};
 
-export const getCountForCardType = (cardType, taskData, today, yesterday) => {
+export const dateStrings = {
+  todayString: setupDates.todayDate.toDateString(),
+  yesterdayString: setupDates.yesterdayDate().toDateString(),
+};
+
+export function getMissedTasks(tasks) {
+  const lines = tasks.split("\n");
+
+  const missedIndex = lines.indexOf("Missed:");
+
+  if (missedIndex !== -1) {
+    const missedTasks = lines.slice(
+      missedIndex + 1,
+      lines.indexOf("", missedIndex)
+    );
+
+    const missedTasksString = missedTasks.join("\n").trim();
+
+    return missedTasksString;
+  }
+}
+
+export const userTaskRef = (userEmail, db) =>
+  query(
+    collection(db, "forgedTasks"),
+    where("author.name", "==", userEmail),
+    where("dateAdded", ">=", setupDates.yesterdayDate().toISOString()),
+    orderBy("dateAdded", "desc")
+  );
+
+export const learnerDataRef = query(collection(db, "learnerData"));
+
+export const getCountForCardType = (cardType, taskData) => {
   return taskData.filter(
     (task) =>
       task.cardType === cardType &&
-      (new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() >= yesterday.toDateString())
+      (new Date(task.dateAdded).toDateString() === dateStrings.todayString ||
+        new Date(task.dateAdded).toDateString() >= dateStrings.yesterdayString)
   ).length;
 };
 
@@ -31,7 +77,6 @@ export const fetchTasks = (taskRef, userEmail, setTaskData) => {
 
     snapshot.forEach((doc) => {
       const author = doc.data().author.name;
-
       if (author === userEmail) {
         tasks.push({
           id: doc.id,
@@ -50,9 +95,7 @@ export const fetchLearnerData = async (
   learnerRef,
   userEmail,
   setIsTechLead,
-  setLearnerData,
-  setIsTechCoach,
-  yesterdayDate
+  setLearnerData
 ) => {
   const tasksByLearner = {};
   let taskQuery;
@@ -62,34 +105,19 @@ export const fetchLearnerData = async (
 
     for (const doc of snapshot.docs) {
       const techLeadEmail = doc.data().techLead;
-      const techCoachEmail = doc.data().techCoach;
 
       if (techLeadEmail === userEmail) {
         setIsTechLead(true);
       }
 
-      if (techCoachEmail === userEmail) {
-        setIsTechCoach(true);
-      }
-
-      if (techLeadEmail === userEmail || techCoachEmail === userEmail) {
+      if (techLeadEmail === userEmail) {
         const learnersMap = doc.data().learners;
-        const nineDaysAgo = new Date(todayDate);
-        nineDaysAgo.setDate(nineDaysAgo.getDate() - 9);
 
-        const nineDaysAgoTimestamp = nineDaysAgo.toISOString();
-
-        techCoachEmail !== userEmail
-          ? (taskQuery = query(
-              collection(db, "forgedTasks"),
-              where("author.name", "in", learnersMap),
-              where("dateAdded", ">=", yesterdayDate.toISOString())
-            ))
-          : (taskQuery = query(
-              collection(db, "forgedTasks"),
-              where("author.name", "in", learnersMap),
-              where("dateAdded", ">", nineDaysAgoTimestamp)
-            ));
+        taskQuery = query(
+          collection(db, "forgedTasks"),
+          where("author.name", "in", learnersMap),
+          where("dateAdded", ">=", setupDates.yesterdayDate().toISOString())
+        );
 
         if (Array.isArray(learnersMap) && learnersMap.length > 0) {
           const taskSnapshot = await getDocs(taskQuery);
@@ -110,7 +138,7 @@ export const fetchLearnerData = async (
 
     setLearnerData(tasksByLearner);
   } catch (error) {
-    console.error("Error fetching learner data:", error);
+    throw new Error("Error fetching learner data:", error);
   }
 };
 
@@ -131,38 +159,8 @@ const formatSectionData = (data, option) => {
     .join("");
 };
 
-export function getMissedTasks(tasks) {
-  const lines = tasks.split("\n");
-
-  const missedIndex = lines.indexOf("Missed:");
-
-  if (missedIndex !== -1) {
-    const missedTasks = lines.slice(
-      missedIndex + 1,
-      lines.indexOf("", missedIndex)
-    );
-
-    const missedTasksString = missedTasks.join("\n").trim();
-
-    return missedTasksString;
-  }
-}
-
 export const formattedData = (learnerData, isGroup) => {
   let formattedData = "";
-
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
-  const yesterdayDayOfWeek = yesterday.getDay();
-
-  let friday;
-
-  if (yesterdayDayOfWeek === 0) {
-    friday = new Date(yesterday);
-    friday.setDate(yesterday.getDate() - 2);
-  }
 
   const dateAddedStr = (card) => new Date(card.dateAdded).toDateString();
 
@@ -174,14 +172,14 @@ export const formattedData = (learnerData, isGroup) => {
     const filterByDate = (cards, date) => {
       if (date === "yesterday") {
         return cards.filter((card) =>
-          yesterdayDayOfWeek === 0
-            ? dateAddedStr(card) >= friday.toDateString() &&
-              dateAddedStr(card) !== today.toDateString()
-            : dateAddedStr(card) === yesterday.toDateString()
+          setupDates.yesterdayDayOfWeek() === 0
+            ? dateAddedStr(card) >= setupDates.yesterdayDate().toDateString() &&
+              dateAddedStr(card) !== setupDates.todayDate.toDateString()
+            : dateAddedStr(card) === setupDates.yesterdayDate().toDateString()
         );
       } else {
         return cards.filter(
-          (card) => dateAddedStr(card) === new Date().toDateString()
+          (card) => dateAddedStr(card) === dateStrings.todayString
         );
       }
     };
@@ -233,75 +231,6 @@ export const formattedData = (learnerData, isGroup) => {
   } else {
     processLearnerData(learnerData);
   }
-
-  return formattedData.trim();
-};
-
-export const formatWeeklyReport = (learnerData) => {
-  let formattedData = "";
-
-  const processLearnerData = (data, hasLearnerName) => {
-    const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date();
-      currentDate.setDate(currentDate.getDate() - i);
-      const currentDay = daysOfWeek[currentDate.getDay()];
-
-      let startDate = new Date(currentDate);
-      let endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 1);
-      formattedData += hasLearnerName
-        ? `Learner: ${hasLearnerName}\n${currentDay} (${
-            startDate.toISOString().split("T")[0]
-          }):\n`
-        : `${currentDay} (${startDate.toISOString().split("T")[0]}):\n`;
-
-      const filterByDateRange = (cards, startDate, endDate) =>
-        cards.filter(
-          (card) =>
-            new Date(card.dateAdded).toISOString().split("T")[0] ===
-            startDate.toISOString().split("T")[0]
-        );
-
-      const dayCards = filterByDateRange(data, startDate, endDate);
-
-      const filterByCardType = (cards, cardType) =>
-        cards.filter((card) => card.cardType === cardType);
-
-      const dayProjectsCards = filterByCardType(dayCards, "project");
-
-      formattedData += formatSectionData(dayProjectsCards, "day");
-
-      formattedData += "\nReviews:\n";
-
-      const dayReviewCards = filterByCardType(dayCards, "review");
-
-      formattedData += formatSectionData(dayReviewCards, "day");
-      formattedData += "\nMissed:\n";
-
-      const missedCards = dayCards.filter((card) => !card.isChecked);
-
-      formattedData += formatSectionData(missedCards, "missed");
-
-      formattedData += "\n";
-    }
-  };
-
-  for (const learner in learnerData) {
-    const data = learnerData[learner];
-    const learnerName = learner;
-    processLearnerData(data, learnerName);
-  }
-
   return formattedData.trim();
 };
 
@@ -313,10 +242,10 @@ export const copyToClipboard = (data) => {
         alert("Formatted data copied to clipboard!");
       })
       .catch((error) => {
-        console.error("Failed to copy to clipboard:", error);
+        throw new Error("Failed to copy to clipboard:", error);
       });
   } catch (error) {
-    console.error("Error fetching data:", error);
+    throw new Error("Error fetching data:", error);
   }
 };
 
@@ -332,22 +261,15 @@ export const logoutUser = async () => {
   await signOut(auth);
 };
 
-export const deleteAllTasks = (taskData, taskRef, setTaskData) => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+export const deleteAllTasks = async (taskData, setTaskData) => {
   try {
-    taskData.forEach(async (task) => {
-      if (
-        new Date(task.dateAdded).toDateString() === today.toDateString() ||
-        new Date(task.dateAdded).toDateString() === yesterday.toDateString()
-      ) {
+    await Promise.all(
+      taskData.map(async (task) => {
         await deleteDoc(doc(collection(db, "forgedTasks"), task.id));
-      }
-    });
-
+      })
+    );
     setTaskData([]);
   } catch (error) {
-    console.error("Error deleting tasks:", error);
+    throw new Error(`Error deleting tasks: ${error.message}`);
   }
 };

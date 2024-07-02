@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { db } from "../utils/firebase_config";
-import { collection, query, where, orderBy } from "firebase/firestore";
 import "../styles/Home.css";
 import Header from "../components/Header";
 import Stats from "../components/Stats";
@@ -17,7 +16,7 @@ function Home({ userEmail }) {
   const [learnerData, setLearnerData] = useState({});
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isTechLead, setIsTechLead] = useState(false);
-  const [isTechCoach, setIsTechCoach] = useState(false);
+  const [view, setView] = useState(null);
 
   const effectRan = useRef(false);
 
@@ -28,38 +27,20 @@ function Home({ userEmail }) {
     });
   }, [todayVisible, yesterdayVisible]);
 
-  const todayDate = new Date();
-  const yesterdayDate = new Date(todayDate);
-  const dayOfWeek = yesterdayDate.getDay();
-
-  if (dayOfWeek - 1 === 0) {
-    yesterdayDate.setDate(todayDate.getDate() - 3);
-  } else {
-    yesterdayDate.setDate(todayDate.getDate() - 1);
-  }
-
-  yesterdayDate.setHours(0, 0, 0, 0);
-  const taskRef = query(
-    collection(db, "forgedTasks"),
-    where("author.name", "==", userEmail),
-    where("dateAdded", ">=", yesterdayDate.toISOString()),
-    orderBy("dateAdded", "desc")
-  );
-
-  const learnerRef = query(collection(db, "learnerData"));
-
   useEffect(() => {
-    taskUtils.fetchTasks(taskRef, userEmail, setTaskData);
+    taskUtils.fetchTasks(
+      taskUtils.userTaskRef(userEmail, db),
+      userEmail,
+      setTaskData
+    );
   }, []);
 
   useEffect(() => {
     taskUtils.fetchLearnerData(
-      learnerRef,
+      taskUtils.learnerDataRef,
       userEmail,
       setIsTechLead,
-      setLearnerData,
-      setIsTechCoach,
-      yesterdayDate
+      setLearnerData
     );
   }, []);
 
@@ -72,23 +53,9 @@ function Home({ userEmail }) {
     taskUtils.togglePopup(isPopupVisible, setIsPopupVisible);
   };
 
-  const handleDeleteAll = async () => {
-    taskUtils.deleteAllTasks(taskData, taskRef, setTaskData);
-  };
+  const reviewTasksCount = taskUtils.getCountForCardType("review", taskData);
 
-  const reviewTasksCount = taskUtils.getCountForCardType(
-    "review",
-    taskData,
-    todayDate,
-    yesterdayDate
-  );
-
-  const projectTasksCount = taskUtils.getCountForCardType(
-    "project",
-    taskData,
-    todayDate,
-    yesterdayDate
-  );
+  const projectTasksCount = taskUtils.getCountForCardType("project", taskData);
 
   useEffect(() => {
     if (effectRan.current === false) {
@@ -97,11 +64,11 @@ function Home({ userEmail }) {
           action: "postTasks",
           userEmail: userEmail,
           tasks: taskUtils.formattedData(taskData, false),
-          date: todayDate.toISOString().substring(0, 10),
+          date: taskUtils.setupDates.todayDate.toISOString().substring(0, 10),
           missed: taskData.filter(
             (task) =>
               new Date(task.dateAdded).toDateString() !==
-                todayDate.toDateString() && !task.isChecked
+                taskUtils.dateStrings.todayString && !task.isChecked
           ).length,
         });
       }
@@ -110,13 +77,12 @@ function Home({ userEmail }) {
 
   const generateTasks = (section) => {
     const filteredTasks = taskData.filter((task) => {
-      const today = new Date();
       const taskDate = new Date(task.dateAdded);
 
       if (section === "today") {
-        return taskDate.toDateString() === today.toDateString();
+        return taskDate.toDateString() === taskUtils.dateStrings.todayString;
       } else if (section === "yesterday") {
-        return taskDate.toDateString() !== today.toDateString();
+        return taskDate.toDateString() !== taskUtils.dateStrings.todayString;
       }
       return false;
     });
@@ -143,11 +109,6 @@ function Home({ userEmail }) {
     taskUtils.copyToClipboard(data);
   };
 
-  const copyWeekReport = () => {
-    const data = taskUtils.formatWeeklyReport(learnerData);
-    taskUtils.copyToClipboard(data);
-  };
-
   const showTasks = (section) => {
     if (section === "today") {
       setTodayVisible((prev) => !prev);
@@ -161,24 +122,33 @@ function Home({ userEmail }) {
     }
   };
 
+  const handleViewChange = (newView) => {
+    if (view === newView) {
+      setView(null);
+    } else {
+      setView(newView);
+    }
+  };
+
   return (
     <div className="task-container">
       <Header
         userEmail={userEmail}
         togglePopup={togglePopup}
-        handleDeleteAll={handleDeleteAll}
         copyLearnerData={copyLearnerData}
-        copyWeekReport={copyWeekReport}
         logout={logout}
         copyMyTasks={copyMyTasks}
         isTechLead={isTechLead}
-        isTechCoach={isTechCoach}
         isPopupVisible={isPopupVisible}
+        taskData={taskData}
+        setTaskData={setTaskData}
       />
       <div className="task-board space-y-3 pb-16">
         <Stats
           projectTasksCount={projectTasksCount}
           reviewTasksCount={reviewTasksCount}
+          onClick={handleViewChange}
+          view={view}
         />
         <ToggleSection
           isVisible={todayVisible}
@@ -186,7 +156,11 @@ function Home({ userEmail }) {
           label="Today"
           taskCount={generateTasks("today").length}
         />
-        <TaskList tasks={generateTasks("today")} isVisible={todayVisible} />
+        <TaskList
+          tasks={generateTasks("today")}
+          isVisible={todayVisible}
+          view={view}
+        />
         <ToggleSection
           isVisible={yesterdayVisible}
           onClick={() => showTasks("yesterday")}
@@ -196,6 +170,7 @@ function Home({ userEmail }) {
         <TaskList
           tasks={generateTasks("yesterday")}
           isVisible={yesterdayVisible}
+          view={view}
         />
       </div>
       <AddTasks />
